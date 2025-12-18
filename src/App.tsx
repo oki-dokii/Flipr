@@ -11,9 +11,12 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import TruckRegistration from "./pages/TruckRegistration";
 import TruckList from "./pages/TruckList";
+import TruckEdit from "./pages/TruckEdit";
 import ShipmentUpload from "./pages/ShipmentUpload";
 import ShipmentList from "./pages/ShipmentList";
 import TruckRecommendations from "./pages/TruckRecommendations";
+import BookingRequests from "./pages/BookingRequests";
+import MyBookings from "./pages/MyBookings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +57,14 @@ const App = () => (
               }
             />
             <Route
+              path="/trucks/edit/:id"
+              element={
+                <ProtectedRoute allowedRoles={['dealer']}>
+                  <TruckEdit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/shipments"
               element={
                 <ProtectedRoute allowedRoles={['warehouse']}>
@@ -74,6 +85,22 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['warehouse']}>
                   <TruckRecommendations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bookings/requests"
+              element={
+                <ProtectedRoute allowedRoles={['dealer']}>
+                  <BookingRequests />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bookings/my-bookings"
+              element={
+                <ProtectedRoute allowedRoles={['warehouse']}>
+                  <MyBookings />
                 </ProtectedRoute>
               }
             />

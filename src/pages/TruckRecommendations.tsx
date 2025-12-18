@@ -56,6 +56,34 @@ const TruckRecommendations = () => {
         }
     };
 
+    const handleBookingRequest = async (truckId: number, truckName: string) => {
+        try {
+            const response = await fetch('http://localhost:3001/api/bookings/request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    shipment_id: shipmentId,
+                    truck_id: truckId,
+                    notes: ''
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`✅ Booking request sent for ${truckName}!\n\nThe dealer will review your request.`);
+            } else {
+                alert(`❌ ${data.error || 'Failed to send booking request'}`);
+            }
+        } catch (error) {
+            console.error('Booking request error:', error);
+            alert('❌ Failed to send booking request. Please try again.');
+        }
+    };
+
     const getScoreColor = (score: number) => {
         if (score >= 80) return 'text-green';
         if (score >= 60) return 'text-yellow';
@@ -269,8 +297,11 @@ const TruckRecommendations = () => {
                                 </div>
 
                                 {/* Action Button */}
-                                <Button className="w-full bg-gradient-to-r from-teal to-cyan">
-                                    Assign This Truck
+                                <Button
+                                    className="w-full bg-gradient-to-r from-teal to-cyan hover:from-teal/90 hover:to-cyan/90"
+                                    onClick={() => handleBookingRequest(rec.truck.id, rec.truck.truck_name)}
+                                >
+                                    Request Booking
                                 </Button>
                             </div>
                         ))}

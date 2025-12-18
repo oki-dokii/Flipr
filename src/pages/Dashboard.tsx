@@ -122,31 +122,104 @@ const Dashboard = () => {
                     </div>
 
                     {/* Role-specific content */}
-                    <div className="glass-card p-8 text-center">
-                        <div className="max-w-md mx-auto">
-                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal to-cyan flex items-center justify-center mx-auto mb-4">
+                    {stats.count === 0 ? (
+                        <div className="glass-card p-8 text-center">
+                            <div className="max-w-md mx-auto">
+                                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal to-cyan flex items-center justify-center mx-auto mb-4">
+                                    {isWarehouse ? (
+                                        <Package className="w-8 h-8 text-white" />
+                                    ) : (
+                                        <Truck className="w-8 h-8 text-white" />
+                                    )}
+                                </div>
+                                <h2 className="text-xl font-bold mb-2">
+                                    {isWarehouse ? 'Upload Your First Shipment' : 'Register Your First Truck'}
+                                </h2>
+                                <p className="text-muted-foreground mb-6">
+                                    {isWarehouse
+                                        ? 'Get started by uploading shipment details and receive AI-powered truck recommendations'
+                                        : 'Add your trucks to the platform and start receiving booking requests from warehouses'}
+                                </p>
+                                <Button
+                                    className="bg-gradient-to-r from-teal to-cyan"
+                                    onClick={() => navigate(isWarehouse ? '/shipments/upload' : '/trucks/register')}
+                                >
+                                    {isWarehouse ? 'Upload Shipment' : 'Add Truck'}
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="glass-card p-8">
+                            <h2 className="text-xl font-bold mb-6">Quick Actions</h2>
+                            <div className="grid md:grid-cols-2 gap-4">
                                 {isWarehouse ? (
-                                    <Package className="w-8 h-8 text-white" />
+                                    <>
+                                        <Button
+                                            className="h-24 bg-gradient-to-br from-teal to-cyan hover:from-teal/90 hover:to-cyan/90"
+                                            onClick={() => navigate('/shipments')}
+                                        >
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Package className="w-6 h-6" />
+                                                <span>View Shipments</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-24"
+                                            onClick={() => navigate('/shipments/upload')}
+                                        >
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Package className="w-6 h-6" />
+                                                <span>Upload New Shipment</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-24"
+                                            onClick={() => navigate('/bookings/my-bookings')}
+                                        >
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Truck className="w-6 h-6" />
+                                                <span>My Bookings</span>
+                                            </div>
+                                        </Button>
+                                    </>
                                 ) : (
-                                    <Truck className="w-8 h-8 text-white" />
+                                    <>
+                                        <Button
+                                            className="h-24 bg-gradient-to-br from-teal to-cyan hover:from-teal/90 hover:to-cyan/90"
+                                            onClick={() => navigate('/trucks')}
+                                        >
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Truck className="w-6 h-6" />
+                                                <span>View Trucks</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-24"
+                                            onClick={() => navigate('/trucks/register')}
+                                        >
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Truck className="w-6 h-6" />
+                                                <span>Register New Truck</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-24"
+                                            onClick={() => navigate('/bookings/requests')}
+                                        >
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Package className="w-6 h-6" />
+                                                <span>Booking Requests</span>
+                                            </div>
+                                        </Button>
+                                    </>
                                 )}
                             </div>
-                            <h2 className="text-xl font-bold mb-2">
-                                {isWarehouse ? 'Upload Your First Shipment' : 'Register Your First Truck'}
-                            </h2>
-                            <p className="text-muted-foreground mb-6">
-                                {isWarehouse
-                                    ? 'Get started by uploading shipment details and receive AI-powered truck recommendations'
-                                    : 'Add your trucks to the platform and start receiving booking requests from warehouses'}
-                            </p>
-                            <Button
-                                className="bg-gradient-to-r from-teal to-cyan"
-                                onClick={() => navigate(isWarehouse ? '/shipments/upload' : '/trucks/register')}
-                            >
-                                {isWarehouse ? 'Upload Shipment' : 'Add Truck'}
-                            </Button>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

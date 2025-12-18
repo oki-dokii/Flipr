@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Package, Plus, Trash2, ArrowLeft, Clock, MapPin } from 'lucide-react';
+import { Package, Plus, Trash2, ArrowLeft, Clock, MapPin, Truck } from 'lucide-react';
 
 interface ShipmentData {
     id: number;
@@ -196,11 +196,19 @@ const ShipmentList = () => {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="text-red hover:bg-red/10 flex-1"
+                                            className="flex-1 bg-gradient-to-r from-teal to-cyan text-white border-0 hover:opacity-90"
+                                            onClick={() => navigate(`/recommendations/${shipment.id}`)}
+                                        >
+                                            <Truck className="w-4 h-4 mr-2" />
+                                            Find Trucks
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-red hover:bg-red/10"
                                             onClick={() => handleDelete(shipment.id)}
                                         >
-                                            <Trash2 className="w-4 h-4 mr-2" />
-                                            Delete
+                                            <Trash2 className="w-4 h-4" />
                                         </Button>
                                     </div>
                                 </div>

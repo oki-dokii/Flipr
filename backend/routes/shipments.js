@@ -110,4 +110,68 @@ router.delete('/:id', authenticateToken, requireRole('warehouse'), (req, res) =>
     }
 });
 
+// Update shipment status to in_transit (dealer only)
+router.put('/:id/in-transit', authenticateToken, requireRole('dealer'), (req, res) => {
+    try {
+        const shipment = getShipmentById(req.params.id);
+
+        if (!shipment) {
+            return res.status(404).json({ error: 'Shipment not found' });
+        }
+
+        if (shipment.status !== 'assigned') {
+            return res.status(400).json({
+                error: 'Shipment must be assigned before marking as in transit',
+                currentStatus: shipment.status
+            });
+        }
+
+        const success = updateShipment(req.params.id, shipment.warehouse_id, {
+            ...shipment,
+            status: 'in_transit'
+        });
+
+        if (!success) {
+            return res.status(500).json({ error: 'Failed to update shipment status' });
+        }
+
+        res.json({ message: 'Shipment marked as in transit' });
+    } catch (error) {
+        console.error('Update to in-transit error:', error);
+        res.status(500).json({ error: 'Failed to update shipment status' });
+    }
+});
+
+// Update shipment status to delivered (dealer only)
+router.put('/:id/deliver', authenticateToken, requireRole('dealer'), (req, res) => {
+    try {
+        const shipment = getShipmentById(req.params.id);
+
+        if (!shipment) {
+            return res.status(404).json({ error: 'Shipment not found' });
+        }
+
+        if (shipment.status !== 'in_transit') {
+            return res.status(400).json({
+                error: 'Shipment must be in transit before marking as delivered',
+                currentStatus: shipment.status
+            });
+        }
+
+        const success = updateShipment(req.params.id, shipment.warehouse_id, {
+            ...shipment,
+            status: 'delivered'
+        });
+
+        if (!success) {
+            return res.status(500).json({ error: 'Failed to update shipment status' });
+        }
+
+        res.json({ message: 'Shipment marked as delivered' });
+    } catch (error) {
+        console.error('Update to delivered error:', error);
+        res.status(500).json({ error: 'Failed to update shipment status' });
+    }
+});
+
 export default router;

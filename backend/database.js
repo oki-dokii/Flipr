@@ -59,6 +59,27 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_shipments_warehouse ON shipments(warehouse_id);
   CREATE INDEX IF NOT EXISTS idx_shipments_status ON shipments(status);
+
+  CREATE TABLE IF NOT EXISTS booking_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    shipment_id INTEGER NOT NULL,
+    truck_id INTEGER NOT NULL,
+    warehouse_id INTEGER NOT NULL,
+    dealer_id INTEGER NOT NULL,
+    status TEXT DEFAULT 'requested' CHECK(status IN ('requested', 'approved', 'rejected')),
+    requested_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    responded_at DATETIME,
+    notes TEXT,
+    FOREIGN KEY (shipment_id) REFERENCES shipments(id) ON DELETE CASCADE,
+    FOREIGN KEY (truck_id) REFERENCES trucks(id) ON DELETE CASCADE,
+    FOREIGN KEY (warehouse_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (dealer_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_booking_warehouse ON booking_requests(warehouse_id);
+  CREATE INDEX IF NOT EXISTS idx_booking_dealer ON booking_requests(dealer_id);
+  CREATE INDEX IF NOT EXISTS idx_booking_status ON booking_requests(status);
+  CREATE INDEX IF NOT EXISTS idx_booking_shipment ON booking_requests(shipment_id);
 `);
 
 export default db;
