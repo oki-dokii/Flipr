@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import TruckRegistration from "./pages/TruckRegistration";
+import TruckList from "./pages/TruckList";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +31,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trucks"
+              element={
+                <ProtectedRoute allowedRoles={['dealer']}>
+                  <TruckList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trucks/register"
+              element={
+                <ProtectedRoute allowedRoles={['dealer']}>
+                  <TruckRegistration />
                 </ProtectedRoute>
               }
             />

@@ -117,7 +117,10 @@ const Dashboard = () => {
                                     ? 'Get started by uploading shipment details and receive AI-powered truck recommendations'
                                     : 'Add your trucks to the platform and start receiving booking requests from warehouses'}
                             </p>
-                            <Button className="bg-gradient-to-r from-teal to-cyan">
+                            <Button
+                                className="bg-gradient-to-r from-teal to-cyan"
+                                onClick={() => navigate(isWarehouse ? '/shipments/upload' : '/trucks/register')}
+                            >
                                 {isWarehouse ? 'Upload Shipment' : 'Add Truck'}
                             </Button>
                         </div>
