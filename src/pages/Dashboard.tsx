@@ -2,10 +2,32 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Truck, Package, BarChart3, LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 const Dashboard = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, token } = useAuth();
     const navigate = useNavigate();
+    const [stats, setStats] = useState({ count: 0 });
+
+    useEffect(() => {
+        fetchStats();
+    }, []);
+
+    const fetchStats = async () => {
+        try {
+            const endpoint = isWarehouse ? '/api/shipments' : '/api/trucks';
+            const response = await fetch(`http://localhost:3001${endpoint}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                const items = isWarehouse ? data.shipments : data.trucks;
+                setStats({ count: items?.length || 0 });
+            }
+        } catch (error) {
+            console.error('Failed to fetch stats:', error);
+        }
+    };
 
     const handleLogout = () => {
         logout();
@@ -64,7 +86,7 @@ const Dashboard = () => {
                                     <Package className="w-6 h-6 text-teal" />
                                 </div>
                                 <div>
-                                    <div className="text-2xl font-bold">0</div>
+                                    <div className="text-2xl font-bold">{stats.count}</div>
                                     <div className="text-sm text-muted-foreground">
                                         {isWarehouse ? 'Active Shipments' : 'Active Trucks'}
                                     </div>
