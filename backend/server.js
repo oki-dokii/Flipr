@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import truckRoutes from './routes/trucks.js';
 import shipmentRoutes from './routes/shipments.js';
+import optimizeRoutes from './routes/optimize.js';
 import './database.js'; // Initialize database
 
 dotenv.config();
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/trucks', truckRoutes);
 app.use('/api/shipments', shipmentRoutes);
+app.use('/api/optimize', optimizeRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
