@@ -42,6 +42,23 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_trucks_dealer ON trucks(dealer_id);
   CREATE INDEX IF NOT EXISTS idx_trucks_status ON trucks(availability_status);
+
+  CREATE TABLE IF NOT EXISTS shipments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    warehouse_id INTEGER NOT NULL,
+    shipment_name TEXT NOT NULL,
+    weight_kg REAL NOT NULL,
+    volume_m3 REAL NOT NULL,
+    destination TEXT NOT NULL,
+    delivery_deadline DATETIME NOT NULL,
+    priority TEXT DEFAULT 'medium' CHECK(priority IN ('low', 'medium', 'high')),
+    status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'assigned', 'in_transit', 'delivered')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (warehouse_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_shipments_warehouse ON shipments(warehouse_id);
+  CREATE INDEX IF NOT EXISTS idx_shipments_status ON shipments(status);
 `);
 
 export default db;

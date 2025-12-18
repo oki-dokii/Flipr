@@ -11,6 +11,8 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import TruckRegistration from "./pages/TruckRegistration";
 import TruckList from "./pages/TruckList";
+import ShipmentUpload from "./pages/ShipmentUpload";
+import ShipmentList from "./pages/ShipmentList";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +49,22 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['dealer']}>
                   <TruckRegistration />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/shipments"
+              element={
+                <ProtectedRoute allowedRoles={['warehouse']}>
+                  <ShipmentList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/shipments/upload"
+              element={
+                <ProtectedRoute allowedRoles={['warehouse']}>
+                  <ShipmentUpload />
                 </ProtectedRoute>
               }
             />

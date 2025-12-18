@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import truckRoutes from './routes/trucks.js';
+import shipmentRoutes from './routes/shipments.js';
 import './database.js'; // Initialize database
 
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/trucks', truckRoutes);
+app.use('/api/shipments', shipmentRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
