@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 175 80% 50%;
+    --primary-foreground: 222 47% 6%;
+
+    --secondary: 222 47% 15%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 47% 12%;
+    --muted-foreground: 215 20% 55%;
+
+    --accent: 142 70% 45%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 47% 18%;
+    --input: 222 47% 18%;
+    --ring: 175 80% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom colors */
+    --teal: 175 80% 50%;
+    --teal-glow: 175 80% 60%;
+    --green: 142 70% 45%;
+    --green-glow: 142 70% 55%;
+    --cyan: 190 90% 55%;
+    --orange: 28 100% 50%;
+    --navy-light: 222 47% 15%;
+    --navy-medium: 222 47% 12%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--teal)), hsl(var(--cyan)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--green)), hsl(var(--teal)));
+    --gradient-glass: linear-gradient(135deg, hsla(222, 47%, 20%, 0.4), hsla(222, 47%, 10%, 0.2));
+    --gradient-hero: radial-gradient(ellipse at 50% 0%, hsla(175, 80%, 50%, 0.15) 0%, transparent 60%);
+
+    /* Shadows */
+    --shadow-glow: 0 0 60px hsla(175, 80%, 50%, 0.3);
+    --shadow-card: 0 8px 32px hsla(0, 0%, 0%, 0.3);
+    --shadow-elevated: 0 20px 60px hsla(0, 0%, 0%, 0.4);
+
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 175 80% 50%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 222 47% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 47% 18%;
+    --sidebar-ring: 175 80% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+@layer components {
+  .glass {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    @apply backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    @apply backdrop-blur-xl border border-white/10 rounded-2xl;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--teal))] to-[hsl(var(--cyan))];
+  }
+
+  .text-gradient-green {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--green))] to-[hsl(var(--teal))];
+  }
+
+  .glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .glow-green {
+    box-shadow: 0 0 40px hsla(142, 70%, 45%, 0.4);
+  }
+}
+
+@layer utilities {
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float 6s ease-in-out infinite 2s;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.8s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.6;
+    filter: blur(40px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(60px);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
