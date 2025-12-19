@@ -215,3 +215,45 @@ export const getArchivedBookingsByDealer = (dealerId) => {
     return stmt.all(dealerId);
 };
 
+/**
+ * Bulk approve booking requests
+ */
+export const bulkApproveBookings = async (bookingIds, dealerId) => {
+    const results = [];
+
+    for (const bookingId of bookingIds) {
+        try {
+            const success = approveBooking(bookingId, dealerId);
+            results.push({ bookingId, success, error: null });
+        } catch (error) {
+            results.push({ bookingId, success: false, error: error.message });
+        }
+    }
+
+    const successCount = results.filter(r => r.success).length;
+    const failCount = results.filter(r => !r.success).length;
+
+    return { successCount, failCount, results };
+};
+
+/**
+ * Bulk reject booking requests
+ */
+export const bulkRejectBookings = async (bookingIds, dealerId) => {
+    const results = [];
+
+    for (const bookingId of bookingIds) {
+        try {
+            const success = rejectBooking(bookingId, dealerId);
+            results.push({ bookingId, success, error: null });
+        } catch (error) {
+            results.push({ bookingId, success: false, error: error.message });
+        }
+    }
+
+    const successCount = results.filter(r => r.success).length;
+    const failCount = results.filter(r => !r.success).length;
+
+    return { successCount, failCount, results };
+};
+

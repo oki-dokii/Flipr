@@ -11,7 +11,9 @@ import {
     archiveBooking,
     unarchiveBooking,
     getArchivedBookingsByWarehouse,
-    getArchivedBookingsByDealer
+    getArchivedBookingsByDealer,
+    bulkApproveBookings,
+    bulkRejectBookings
 } from '../models/Booking.js';
 import { getShipmentById, updateShipment } from '../models/Shipment.js';
 import { getTruckById, updateTruck } from '../models/Truck.js';
@@ -318,6 +320,78 @@ router.get('/dealer/archived', authenticateToken, requireRole('dealer'), (req, r
     } catch (error) {
         console.error('Get archived dealer bookings error:', error);
         res.status(500).json({ error: 'Failed to fetch archived bookings' });
+    }
+});
+
+// Bulk approve bookings (dealer only)
+router.post('/bulk-approve', authenticateToken, requireRole('dealer'), async (req, res) => {
+    try {
+        const { bookingIds } = req.body;
+
+        if (!Array.isArray(bookingIds) || bookingIds.length === 0) {
+            return res.status(400).json({ error: 'bookingIds array is required' });
+        }
+
+        const result = await bulkApproveBookings(bookingIds, req.userId);
+
+        // Send email notifications for successful approvals
+        for (const item of result.results) {
+            if (item.success) {
+                try {
+                    const booking = getBookingById(item.bookingId);
+                    if (booking) {
+                        await sendBookingApprovedEmail(booking);
+                    }
+                } catch (emailError) {
+                    console.error(`Failed to send email for booking ${item.bookingId}:`, emailError);
+                }
+            }
+        }
+
+        res.json({
+            success: true,
+            message: `Approved ${result.successCount} booking(s), ${result.failCount} failed`,
+            ...result
+        });
+    } catch (error) {
+        console.error('Bulk approve error:', error);
+        res.status(500).json({ error: 'Failed to bulk approve bookings' });
+    }
+});
+
+// Bulk reject bookings (dealer only)
+router.post('/bulk-reject', authenticateToken, requireRole('dealer'), async (req, res) => {
+    try {
+        const { bookingIds } = req.body;
+
+        if (!Array.isArray(bookingIds) || bookingIds.length === 0) {
+            return res.status(400).json({ error: 'bookingIds array is required' });
+        }
+
+        const result = await bulkRejectBookings(bookingIds, req.userId);
+
+        // Send email notifications for successful rejections
+        for (const item of result.results) {
+            if (item.success) {
+                try {
+                    const booking = getBookingById(item.bookingId);
+                    if (booking) {
+                        await sendBookingRejectedEmail(booking);
+                    }
+                } catch (emailError) {
+                    console.error(`Failed to send email for booking ${item.bookingId}:`, emailError);
+                }
+            }
+        }
+
+        res.json({
+            success: true,
+            message: `Rejected ${result.successCount} booking(s), ${result.failCount} failed`,
+            ...result
+        });
+    } catch (error) {
+        console.error('Bulk reject error:', error);
+        res.status(500).json({ error: 'Failed to bulk reject bookings' });
     }
 });
 
