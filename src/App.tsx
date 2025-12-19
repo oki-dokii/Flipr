@@ -18,6 +18,7 @@ import TruckRecommendations from "./pages/TruckRecommendations";
 import BookingRequests from "./pages/BookingRequests";
 import MyBookings from "./pages/MyBookings";
 import BookingHistory from "./pages/BookingHistory";
+import MaintenanceSchedule from "./pages/MaintenanceSchedule";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -110,6 +111,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <BookingHistory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/maintenance"
+              element={
+                <ProtectedRoute>
+                  <MaintenanceSchedule />
                 </ProtectedRoute>
               }
             />
