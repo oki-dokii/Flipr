@@ -8,6 +8,7 @@ import {
     deleteTruck,
     getAvailableTrucks
 } from '../models/Truck.js';
+import { uploadTruckImage } from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -120,5 +121,53 @@ router.delete('/:id', authenticateToken, requireRole('dealer'), (req, res) => {
         res.status(500).json({ error: 'Failed to delete truck' });
     }
 });
+
+// Upload truck image (dealer only)
+router.post('/:id/upload-image',
+    authenticateToken,
+    requireRole('dealer'),
+    uploadTruckImage.single('image'),
+    async (req, res) => {
+        try {
+            const truckId = req.params.id;
+
+            // Verify truck ownership
+            const truck = getTruckById(truckId);
+            if (!truck) {
+                return res.status(404).json({ error: 'Truck not found' });
+            }
+
+            if (truck.dealer_id !== req.userId) {
+                return res.status(403).json({ error: 'Access denied - not your truck' });
+            }
+
+            if (!req.file) {
+                return res.status(400).json({ error: 'No image file uploaded' });
+            }
+
+            // Generate image URL
+            const imageUrl = `/uploads/trucks/${req.file.filename}`;
+
+            // Update truck with image URL
+            const success = updateTruck(truckId, req.userId, {
+                ...truck,
+                service_regions: truck.service_regions,
+                image_url: imageUrl
+            });
+
+            if (!success) {
+                return res.status(500).json({ error: 'Failed to update truck with image' });
+            }
+
+            res.json({
+                message: 'Image uploaded successfully',
+                imageUrl
+            });
+        } catch (error) {
+            console.error('Upload image error:', error);
+            res.status(500).json({ error: error.message || 'Failed to upload image' });
+        }
+    }
+);
 
 export default router;

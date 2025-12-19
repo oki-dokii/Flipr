@@ -17,6 +17,7 @@ interface TruckData {
     cost_per_km: number;
     base_cost: number;
     availability_status: string;
+    image_url?: string;
 }
 
 const TruckList = () => {
@@ -131,16 +132,31 @@ const TruckList = () => {
                         <div className="grid md:grid-cols-2 gap-6">
                             {trucks.map((truck) => (
                                 <div key={truck.id} className="glass-card p-6 hover:scale-105 transition-transform">
+                                    {/* Truck Image */}
+                                    <div className="mb-4 relative w-full h-40 bg-background/30 rounded-lg overflow-hidden">
+                                        {truck.image_url ? (
+                                            <img
+                                                src={`http://localhost:3001${truck.image_url}`}
+                                                alt={truck.truck_name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center">
+                                                <Truck className="w-16 h-16 text-muted-foreground/30" />
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <div className="flex items-start justify-between mb-4">
                                         <div>
                                             <h3 className="text-lg font-semibold">{truck.truck_name}</h3>
                                             <p className="text-sm text-muted-foreground">{truck.truck_type}</p>
                                         </div>
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${truck.availability_status === 'available'
-                                                ? 'bg-green/20 text-green'
-                                                : truck.availability_status === 'booked'
-                                                    ? 'bg-yellow/20 text-yellow'
-                                                    : 'bg-red/20 text-red'
+                                            ? 'bg-green/20 text-green'
+                                            : truck.availability_status === 'booked'
+                                                ? 'bg-yellow/20 text-yellow'
+                                                : 'bg-red/20 text-red'
                                             }`}>
                                             {truck.availability_status}
                                         </span>

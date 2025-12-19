@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Image as ImageIcon } from 'lucide-react';
 
 const TruckEdit = () => {
     const navigate = useNavigate();
@@ -12,6 +12,10 @@ const TruckEdit = () => {
     const { token } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         truck_name: '',
         truck_type: '',
@@ -56,6 +60,7 @@ const TruckEdit = () => {
                     base_cost: truck.base_cost.toString(),
                     availability_status: truck.availability_status
                 });
+                setCurrentImageUrl(truck.image_url || null);
             } else {
                 alert('Failed to load truck details');
                 navigate('/trucks');
@@ -113,6 +118,53 @@ const TruckEdit = () => {
             ...formData,
             [e.target.name]: e.target.value
         });
+    };
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedImage(file);
+            // Create preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleImageUpload = async () => {
+        if (!selectedImage) return;
+
+        setIsUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append('image', selectedImage);
+
+            const response = await fetch(`http://localhost:3001/api/trucks/${id}/upload-image`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setCurrentImageUrl(data.imageUrl);
+                setSelectedImage(null);
+                setImagePreview(null);
+                alert('✅ Image uploaded successfully!');
+            } else {
+                const data = await response.json();
+                alert(`❌ ${data.error || 'Failed to upload image'}`);
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('❌ Failed to upload image');
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     if (isLoading) {
@@ -191,6 +243,67 @@ const TruckEdit = () => {
                                     <option value="booked">Booked</option>
                                     <option value="maintenance">Maintenance</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        {/* Truck Image */}
+                        <div className="space-y-4">
+                            <h2 className="text-xl font-semibold">Truck Image</h2>
+
+                            {/* Current Image */}
+                            {currentImageUrl && !imagePreview && (
+                                <div className="mb-4">
+                                    <Label>Current Image</Label>
+                                    <div className="mt-2 relative w-full h-48 bg-background/30 rounded-lg overflow-hidden">
+                                        <img
+                                            src={`http://localhost:3001${currentImageUrl}`}
+                                            alt="Truck"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Image Preview */}
+                            {imagePreview && (
+                                <div className="mb-4">
+                                    <Label>Preview</Label>
+                                    <div className="mt-2 relative w-full h-48 bg-background/30 rounded-lg overflow-hidden">
+                                        <img
+                                            src={imagePreview}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Upload Controls */}
+                            <div className="flex gap-4 items-end">
+                                <div className="flex-1">
+                                    <Label htmlFor="truck_image">Upload New Image</Label>
+                                    <Input
+                                        id="truck_image"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageSelect}
+                                        className="mt-2"
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Max 5MB. JPEG, PNG, GIF, or WebP
+                                    </p>
+                                </div>
+                                {selectedImage && (
+                                    <Button
+                                        type="button"
+                                        onClick={handleImageUpload}
+                                        disabled={isUploading}
+                                        className="bg-gradient-to-r from-purple to-pink"
+                                    >
+                                        <Upload className="w-4 h-4 mr-2" />
+                                        {isUploading ? 'Uploading...' : 'Upload Image'}
+                                    </Button>
+                                )}
                             </div>
                         </div>
 

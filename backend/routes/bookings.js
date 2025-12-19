@@ -11,6 +11,7 @@ import {
 } from '../models/Booking.js';
 import { getShipmentById, updateShipment } from '../models/Shipment.js';
 import { getTruckById, updateTruck } from '../models/Truck.js';
+import { sendBookingApprovedEmail, sendBookingRejectedEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -151,6 +152,15 @@ router.put('/:id/approve', authenticateToken, requireRole('dealer'), async (req,
             availability_status: 'booked'
         });
 
+        // Send email notification to warehouse
+        try {
+            const fullBooking = getBookingById(bookingId);
+            await sendBookingApprovedEmail(fullBooking);
+        } catch (emailError) {
+            console.error('Email notification error:', emailError);
+            // Don't fail the request if email fails
+        }
+
         res.json({
             success: true,
             message: 'Booking approved - truck assigned to shipment'
@@ -187,6 +197,15 @@ router.put('/:id/reject', authenticateToken, requireRole('dealer'), async (req, 
         const rejected = rejectBooking(bookingId, req.userId);
         if (!rejected) {
             return res.status(500).json({ error: 'Failed to reject booking' });
+        }
+
+        // Send email notification to warehouse
+        try {
+            const fullBooking = getBookingById(bookingId);
+            await sendBookingRejectedEmail(fullBooking);
+        } catch (emailError) {
+            console.error('Email notification error:', emailError);
+            // Don't fail the request if email fails
         }
 
         res.json({
