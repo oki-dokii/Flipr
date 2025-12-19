@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Truck, Package, BarChart3, LogOut, User } from 'lucide-react';
+import { Truck, Package, BarChart3, LogOut, User, Wrench, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
@@ -183,6 +183,16 @@ const Dashboard = () => {
                                                 <span>My Bookings</span>
                                             </div>
                                         </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-24"
+                                            onClick={() => navigate('/bookings/history')}
+                                        >
+                                            <div className="flex flex-col items-center gap-2">
+                                                <History className="w-6 h-6" />
+                                                <span>Booking History</span>
+                                            </div>
+                                        </Button>
                                     </>
                                 ) : (
                                     <>
@@ -213,6 +223,16 @@ const Dashboard = () => {
                                             <div className="flex flex-col items-center gap-2">
                                                 <Package className="w-6 h-6" />
                                                 <span>Booking Requests</span>
+                                            </div>
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="h-24"
+                                            onClick={() => navigate('/maintenance')}
+                                        >
+                                            <div className="flex flex-col items-center gap-2">
+                                                <Wrench className="w-6 h-6" />
+                                                <span>Maintenance Schedule</span>
                                             </div>
                                         </Button>
                                     </>
