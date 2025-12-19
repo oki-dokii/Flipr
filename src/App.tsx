@@ -17,6 +17,7 @@ import ShipmentList from "./pages/ShipmentList";
 import TruckRecommendations from "./pages/TruckRecommendations";
 import BookingRequests from "./pages/BookingRequests";
 import MyBookings from "./pages/MyBookings";
+import BookingHistory from "./pages/BookingHistory";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -101,6 +102,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['warehouse']}>
                   <MyBookings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bookings/history"
+              element={
+                <ProtectedRoute>
+                  <BookingHistory />
                 </ProtectedRoute>
               }
             />

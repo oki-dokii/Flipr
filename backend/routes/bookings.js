@@ -7,7 +7,11 @@ import {
     approveBooking,
     rejectBooking,
     getBookingById,
-    checkExistingBooking
+    checkExistingBooking,
+    archiveBooking,
+    unarchiveBooking,
+    getArchivedBookingsByWarehouse,
+    getArchivedBookingsByDealer
 } from '../models/Booking.js';
 import { getShipmentById, updateShipment } from '../models/Shipment.js';
 import { getTruckById, updateTruck } from '../models/Truck.js';
@@ -236,6 +240,84 @@ router.get('/:id', authenticateToken, (req, res) => {
     } catch (error) {
         console.error('Get booking error:', error);
         res.status(500).json({ error: 'Failed to fetch booking' });
+    }
+});
+
+// Archive a booking (warehouse or dealer)
+router.put('/:id/archive', authenticateToken, async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+
+        // Verify booking exists and user has access
+        const booking = getBookingById(bookingId);
+        if (!booking) {
+            return res.status(404).json({ error: 'Booking not found' });
+        }
+
+        // Check if user is warehouse or dealer for this booking
+        if (booking.warehouse_id !== req.userId && booking.dealer_id !== req.userId) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        const success = archiveBooking(bookingId, req.userId);
+        if (!success) {
+            return res.status(500).json({ error: 'Failed to archive booking' });
+        }
+
+        res.json({ success: true, message: 'Booking archived successfully' });
+    } catch (error) {
+        console.error('Archive booking error:', error);
+        res.status(500).json({ error: 'Failed to archive booking' });
+    }
+});
+
+// Unarchive a booking (warehouse or dealer)
+router.put('/:id/unarchive', authenticateToken, async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+
+        // Verify booking exists and user has access
+        const booking = getBookingById(bookingId);
+        if (!booking) {
+            return res.status(404).json({ error: 'Booking not found' });
+        }
+
+        // Check if user is warehouse or dealer for this booking
+        if (booking.warehouse_id !== req.userId && booking.dealer_id !== req.userId) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        const success = unarchiveBooking(bookingId, req.userId);
+        if (!success) {
+            return res.status(500).json({ error: 'Failed to unarchive booking' });
+        }
+
+        res.json({ success: true, message: 'Booking unarchived successfully' });
+    } catch (error) {
+        console.error('Unarchive booking error:', error);
+        res.status(500).json({ error: 'Failed to unarchive booking' });
+    }
+});
+
+// Get archived bookings for warehouse
+router.get('/warehouse/archived', authenticateToken, requireRole('warehouse'), (req, res) => {
+    try {
+        const bookings = getArchivedBookingsByWarehouse(req.userId);
+        res.json({ bookings });
+    } catch (error) {
+        console.error('Get archived warehouse bookings error:', error);
+        res.status(500).json({ error: 'Failed to fetch archived bookings' });
+    }
+});
+
+// Get archived bookings for dealer
+router.get('/dealer/archived', authenticateToken, requireRole('dealer'), (req, res) => {
+    try {
+        const bookings = getArchivedBookingsByDealer(req.userId);
+        res.json({ bookings });
+    } catch (error) {
+        console.error('Get archived dealer bookings error:', error);
+        res.status(500).json({ error: 'Failed to fetch archived bookings' });
     }
 });
 

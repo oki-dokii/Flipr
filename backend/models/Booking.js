@@ -148,3 +148,70 @@ export const checkExistingBooking = (shipmentId, truckId) => {
     `);
     return stmt.get(shipmentId, truckId);
 };
+
+/**
+ * Archive a booking request
+ */
+export const archiveBooking = (bookingId, userId) => {
+    const stmt = db.prepare(`
+        UPDATE booking_requests 
+        SET archived = 1 
+        WHERE id = ? AND (warehouse_id = ? OR dealer_id = ?)
+    `);
+    const result = stmt.run(bookingId, userId, userId);
+    return result.changes > 0;
+};
+
+/**
+ * Unarchive a booking request
+ */
+export const unarchiveBooking = (bookingId, userId) => {
+    const stmt = db.prepare(`
+        UPDATE booking_requests 
+        SET archived = 0 
+        WHERE id = ? AND (warehouse_id = ? OR dealer_id = ?)
+    `);
+    const result = stmt.run(bookingId, userId, userId);
+    return result.changes > 0;
+};
+
+/**
+ * Get archived bookings for a warehouse
+ */
+export const getArchivedBookingsByWarehouse = (warehouseId) => {
+    const stmt = db.prepare(`
+        SELECT 
+            br.*,
+            s.shipment_name, s.weight_kg, s.volume_m3, s.destination, s.delivery_deadline, s.status as shipment_status,
+            t.truck_name, t.truck_type, t.max_weight_kg, t.max_volume_m3,
+            u.name as dealer_name, u.company as dealer_company, u.email as dealer_email
+        FROM booking_requests br
+        JOIN shipments s ON br.shipment_id = s.id
+        JOIN trucks t ON br.truck_id = t.id
+        JOIN users u ON br.dealer_id = u.id
+        WHERE br.warehouse_id = ? AND br.archived = 1
+        ORDER BY br.requested_at DESC
+    `);
+    return stmt.all(warehouseId);
+};
+
+/**
+ * Get archived bookings for a dealer
+ */
+export const getArchivedBookingsByDealer = (dealerId) => {
+    const stmt = db.prepare(`
+        SELECT 
+            br.*,
+            s.shipment_name, s.weight_kg, s.volume_m3, s.destination, s.delivery_deadline, s.priority, s.status as shipment_status,
+            t.truck_name, t.truck_type, t.max_weight_kg, t.max_volume_m3,
+            u.name as warehouse_name, u.company as warehouse_company, u.email as warehouse_email
+        FROM booking_requests br
+        JOIN shipments s ON br.shipment_id = s.id
+        JOIN trucks t ON br.truck_id = t.id
+        JOIN users u ON br.warehouse_id = u.id
+        WHERE br.dealer_id = ? AND br.archived = 1
+        ORDER BY br.requested_at DESC
+    `);
+    return stmt.all(dealerId);
+};
+
