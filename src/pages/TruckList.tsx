@@ -40,6 +40,8 @@ const TruckList = () => {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log('[TruckList] API Response:', data);
+                console.log('[TruckList] First truck image_url:', data.trucks[0]?.image_url);
                 setTrucks(data.trucks);
             }
         } catch (error) {

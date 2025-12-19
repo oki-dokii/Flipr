@@ -71,7 +71,8 @@ export const updateTruck = (id, dealerId, truckData) => {
         service_regions,
         cost_per_km,
         base_cost,
-        availability_status
+        availability_status,
+        image_url
     } = truckData;
 
     const stmt = db.prepare(`
@@ -86,7 +87,8 @@ export const updateTruck = (id, dealerId, truckData) => {
       service_regions = ?,
       cost_per_km = ?,
       base_cost = ?,
-      availability_status = ?
+      availability_status = ?,
+      image_url = ?
     WHERE id = ? AND dealer_id = ?
   `);
 
@@ -102,6 +104,7 @@ export const updateTruck = (id, dealerId, truckData) => {
         cost_per_km,
         base_cost,
         availability_status || 'available',
+        image_url || null,
         id,
         dealerId
     );
