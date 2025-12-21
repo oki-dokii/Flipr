@@ -6,13 +6,46 @@ import db from '../database.js';
 export const createBookingRequest = (bookingData) => {
     const { shipment_id, truck_id, warehouse_id, dealer_id, notes, start_date, end_date } = bookingData;
 
+    // Detect Overload Risk (95% Safety Margin)
+    const shipment = db.prepare('SELECT weight_kg, volume_m3 FROM shipments WHERE id = ?').get(shipment_id);
+    const truck = db.prepare('SELECT max_weight_kg, max_volume_m3 FROM trucks WHERE id = ?').get(truck_id);
+
+    let status = 'requested';
+    let systemNotes = notes || '';
+
+    if (shipment && truck) {
+        const weightUtil = shipment.weight_kg / truck.max_weight_kg;
+        const volumeUtil = shipment.volume_m3 / truck.max_volume_m3;
+
+        // Safety Margin: 0.95 (95%)
+        if (weightUtil > 0.95 || volumeUtil > 0.95) {
+            status = 'on_hold';
+            const riskType = weightUtil > 0.95 ? (volumeUtil > 0.95 ? 'Weight & Volume' : 'Weight') : 'Volume';
+            const riskValue = Math.max(weightUtil, volumeUtil) * 100;
+
+            systemNotes += `\n[SYSTEM] Overload Protection: Booking placed on HOLD. Usage: ${riskValue.toFixed(1)}% (${riskType}). exceed safety margin of 95%.`;
+
+            // Resolution Guidance
+            systemNotes += `\n[GUIDANCE] Resolution:`;
+            if (weightUtil > 0.95) {
+                const excess = shipment.weight_kg - (truck.max_weight_kg * 0.95);
+                systemNotes += `\n- Reduce weight by at least ${excess.toFixed(0)} kg.`;
+            }
+            if (volumeUtil > 0.95) {
+                const excess = shipment.volume_m3 - (truck.max_volume_m3 * 0.95);
+                systemNotes += `\n- Reduce volume by at least ${excess.toFixed(2)} m3.`;
+            }
+            systemNotes += `\n- Consider splitting the shipment or requesting a larger truck (e.g., specific type).`;
+        }
+    }
+
     const stmt = db.prepare(`
         INSERT INTO booking_requests (
-            shipment_id, truck_id, warehouse_id, dealer_id, notes, start_date, end_date
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            shipment_id, truck_id, warehouse_id, dealer_id, notes, start_date, end_date, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    const result = stmt.run(shipment_id, truck_id, warehouse_id, dealer_id, notes || null, start_date, end_date);
+    const result = stmt.run(shipment_id, truck_id, warehouse_id, dealer_id, systemNotes, start_date, end_date, status);
     return result.lastInsertRowid;
 };
 
@@ -293,4 +326,60 @@ export const getBookingByShipmentId = (shipmentId) => {
         LIMIT 1
     `);
     return stmt.get(shipmentId);
+};
+
+/**
+ * Override an on_hold booking (Dealer only)
+ */
+export const overrideBooking = (bookingId, dealerId, justification) => {
+    // First, append the override note
+    const booking = db.prepare('SELECT notes FROM booking_requests WHERE id = ?').get(bookingId);
+    if (!booking) return false;
+
+    const timestamp = new Date().toISOString();
+    const newNotes = (booking.notes || '') + `\n\n[OVERRIDE] Approved by Dealer on ${timestamp}.\nJustification: ${justification}`;
+
+    // Update status and notes
+    const stmt = db.prepare(`
+        UPDATE booking_requests 
+        SET status = 'approved', notes = ?, responded_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND dealer_id = ? AND status = 'on_hold'
+    `);
+
+    const result = stmt.run(newNotes, bookingId, dealerId);
+    return result.changes > 0;
+};
+
+/**
+ * Get safety metrics related to overload protection
+ */
+export const getSafetyMetrics = () => {
+    // 1. Overload risks detected (all bookings that were ever ON HOLD or REJECTED with overload warning)
+    const totalRisks = db.prepare(`
+        SELECT COUNT(*) as count 
+        FROM booking_requests 
+        WHERE notes LIKE '%[SYSTEM] Overload Protection%'
+    `).get().count;
+
+    // 2. Unsafe bookings prevented (current status is ON HOLD or REJECTED and has overload warning)
+    const prevented = db.prepare(`
+        SELECT COUNT(*) as count 
+        FROM booking_requests 
+        WHERE status IN ('on_hold', 'rejected') 
+        AND notes LIKE '%[SYSTEM] Overload Protection%'
+    `).get().count;
+
+    // 3. Overrides (Approved with override note)
+    const overrides = db.prepare(`
+        SELECT COUNT(*) as count 
+        FROM booking_requests 
+        WHERE status = 'approved' 
+        AND notes LIKE '%[OVERRIDE]%'
+    `).get().count;
+
+    return {
+        totalRisks,
+        prevented,
+        overrides
+    };
 };

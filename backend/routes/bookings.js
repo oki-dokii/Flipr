@@ -240,6 +240,28 @@ router.put('/:id/reject', authenticateToken, requireRole('dealer'), async (req, 
     }
 });
 
+// Dealer overrides an on_hold booking
+router.put('/:id/override', authenticateToken, requireRole('dealer'), async (req, res) => {
+    try {
+        const { justification } = req.body;
+        if (!justification) {
+            return res.status(400).json({ error: 'Justification is required for override' });
+        }
+
+        const { overrideBooking } = await import('../models/Booking.js');
+        const success = overrideBooking(req.params.id, req.userId, justification);
+
+        if (!success) {
+            return res.status(404).json({ error: 'Booking not found or not in ON HOLD status' });
+        }
+
+        res.json({ success: true, message: 'Booking overridden and approved' });
+    } catch (error) {
+        console.error('Override booking error:', error);
+        res.status(500).json({ error: 'Failed to override booking' });
+    }
+});
+
 // Get single booking details
 router.get('/:id', authenticateToken, (req, res) => {
     try {

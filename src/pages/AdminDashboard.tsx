@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Truck, Package, Users, Activity, LogOut, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import LanguageSelector from '@/components/LanguageSelector';
 import {
     BarChart,
     Bar,
@@ -68,7 +69,7 @@ const AdminDashboard = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-navy-dark via-navy-medium to-navy-dark">
             {/* Header */}
-            <nav className="border-b border-white/10 bg-background/50 backdrop-blur-sm">
+            <nav className="border-b border-white/10 bg-background/50 backdrop-blur-sm relative z-50">
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -78,7 +79,9 @@ const AdminDashboard = () => {
                             <span className="text-xl font-bold">Admin Console</span>
                         </div>
 
+
                         <div className="flex items-center gap-4">
+                            <LanguageSelector />
                             <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-background/50">
                                 <Users className="w-4 h-4 text-red-500" />
                                 <div className="text-sm">

@@ -3,6 +3,7 @@ import { Home, Lightbulb, BarChart3, DollarSign, Star, LogIn, UserPlus } from "l
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import LanguageSelector from "./LanguageSelector";
 
 const Navbar = () => {
   const { isAuthenticated, user } = useAuth();
@@ -20,6 +21,18 @@ const Navbar = () => {
         <NavBar items={navItems} className="mx-auto" />
 
         <div className="absolute right-4 top-6 flex items-center gap-3">
+          {/* Hidden Google Element */}
+          <div id="google_translate_element" className="hidden"></div>
+
+          <style>{`
+            .goog-te-banner-frame { display: none !important; }
+            body { top: 0px !important; }
+            .goog-tooltip { display: none !important; }
+            .goog-text-highlight { background-color: transparent !important; box-shadow: none !important; }
+          `}</style>
+
+          <LanguageSelector />
+
           {isAuthenticated ? (
             <Button
               onClick={() => navigate('/dashboard')}

@@ -12,6 +12,8 @@ import statsRoutes from './routes/stats.js';
 import calculatorRoutes from './routes/calculator.js';
 import reportsRoutes from './routes/reports.js';
 import adminRoutes from './routes/admin.js';
+import analyticsRoutes from './routes/analytics.js';
+import optimizationRoutes from './routes/optimization.js';
 import { logError } from './utils/logger.js';
 import { dbPromise } from './database.js'; // Initialize database
 
@@ -42,6 +44,8 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/calculator', calculatorRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/optimization', optimizationRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

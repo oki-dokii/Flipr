@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Check, X, Package, Truck, Calendar, Weight, Box, CheckCircle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, Check, X, Package, Truck, Calendar, Weight, Box, CheckCircle, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import {
     AlertDialog,
@@ -19,7 +20,7 @@ interface BookingRequest {
     id: number;
     shipment_id: number;
     truck_id: number;
-    status: 'requested' | 'approved' | 'rejected';
+    status: 'requested' | 'approved' | 'rejected' | 'on_hold';
     requested_at: string;
     responded_at: string | null;
     notes: string | null;
@@ -40,12 +41,14 @@ interface BookingRequest {
 
 const BookingRequests = () => {
     const navigate = useNavigate();
-    const { token } = useAuth();
+    const { token, user } = useAuth();
     const [bookings, setBookings] = useState<BookingRequest[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [filter, setFilter] = useState<'all' | 'requested' | 'approved' | 'rejected'>('requested');
+    const [filter, setFilter] = useState<'all' | 'requested' | 'approved' | 'rejected' | 'on_hold'>('requested');
     const [bookingToApprove, setBookingToApprove] = useState<number | null>(null);
     const [bookingToReject, setBookingToReject] = useState<number | null>(null);
+    const [bookingToOverride, setBookingToOverride] = useState<number | null>(null);
+    const [overrideJustification, setOverrideJustification] = useState('');
     const [bookingToStart, setBookingToStart] = useState<number | null>(null);
     const [bookingToComplete, setBookingToComplete] = useState<number | null>(null);
 
@@ -136,6 +139,35 @@ const BookingRequests = () => {
         }
     };
 
+    const handleOverride = async () => {
+        if (!bookingToOverride || !overrideJustification.trim()) return;
+
+        try {
+            const response = await fetch(`http://localhost:3001/api/bookings/${bookingToOverride}/override`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ justification: overrideJustification })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setBookingToOverride(null);
+                setOverrideJustification('');
+                toast.success('Booking overridden!', { description: 'Status changed to approved.' });
+                fetchBookings();
+            } else {
+                toast.error(data.error || 'Failed to override booking');
+            }
+        } catch (error) {
+            console.error('Override error:', error);
+            toast.error('Failed to override booking');
+        }
+    };
+
     const handleStartDelivery = async (shipmentId: number) => {
         try {
             const response = await fetch(`http://localhost:3001/api/shipments/${shipmentId}/in-transit`, {
@@ -197,6 +229,7 @@ const BookingRequests = () => {
             case 'requested': return 'bg-yellow/20 text-yellow';
             case 'approved': return 'bg-green/20 text-green';
             case 'rejected': return 'bg-red/20 text-red';
+            case 'on_hold': return 'bg-orange/20 text-orange';
             default: return 'bg-gray/20 text-gray';
         }
     };
@@ -258,6 +291,12 @@ const BookingRequests = () => {
                         onClick={() => setFilter('rejected')}
                     >
                         Rejected
+                    </Button>
+                    <Button
+                        variant={filter === 'on_hold' ? 'default' : 'outline'}
+                        onClick={() => setFilter('on_hold')}
+                    >
+                        On Hold
                     </Button>
                     <Button
                         variant={filter === 'all' ? 'default' : 'outline'}
@@ -356,9 +395,44 @@ const BookingRequests = () => {
                                     </div>
                                 </div>
 
+                                {booking.notes && (
+                                    <div className={`mt-4 p-3 rounded-lg text-sm ${booking.notes.includes('[SYSTEM]') ? 'bg-orange/10 border border-orange/20 text-orange' : 'bg-background/50 text-muted-foreground'}`}>
+                                        <p className="font-medium mb-1">
+                                            {booking.notes.includes('[SYSTEM]') ? '⚠️ System Warning:' : 'Notes:'}
+                                        </p>
+                                        <p className="whitespace-pre-wrap">{booking.notes.replace('[SYSTEM]', '').trim()}</p>
+                                    </div>
+                                )}
+
                                 {/* Actions */}
+                                {booking.status === 'on_hold' && (
+                                    <div className="mt-4 space-y-3">
+                                        <div className="p-3 bg-red/10 border border-red/20 rounded-lg flex items-center gap-3 text-red">
+                                            <div className="p-2 bg-red/20 rounded-full">
+                                                <X className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold">Action Required</p>
+                                                <p className="text-sm opacity-90">
+                                                    This booking is ON HOLD due to safety risks.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {user?.role === 'dealer' && (
+                                            <Button
+                                                className="w-full bg-orange hover:bg-orange/90"
+                                                onClick={() => setBookingToOverride(booking.id)}
+                                            >
+                                                <AlertTriangle className="w-4 h-4 mr-2" />
+                                                Override & Approve
+                                            </Button>
+                                        )}
+                                    </div>
+                                )}
+
                                 {booking.status === 'requested' && (
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-3 mt-4">
                                         <Button
                                             className="flex-1 bg-green hover:bg-green/90"
                                             onClick={() => setBookingToApprove(booking.id)}
@@ -508,6 +582,35 @@ const BookingRequests = () => {
                                 onClick={() => bookingToComplete && handleCompleteDelivery(bookingToComplete)}
                             >
                                 Complete Delivery
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+                {/* Override Confirmation Dialog */}
+                <AlertDialog open={bookingToOverride !== null} onOpenChange={(open) => !open && setBookingToOverride(null)}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Override Overload Protection?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This booking exceeds safety limits. Only proceed if you have a valid reason. This action will be logged.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <div className="py-2">
+                            <Textarea
+                                placeholder="Enter justification for override..."
+                                value={overrideJustification}
+                                onChange={(e) => setOverrideJustification(e.target.value)}
+                                className="min-h-[100px]"
+                            />
+                        </div>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                                className="bg-orange hover:bg-orange/90"
+                                onClick={handleOverride}
+                                disabled={!overrideJustification.trim()}
+                            >
+                                Override & Approve
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

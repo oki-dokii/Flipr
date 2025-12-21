@@ -1,8 +1,9 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Truck, Package, BarChart3, LogOut, User, Wrench, History, PieChart, TrendingUp } from 'lucide-react';
+import { Truck, Package, BarChart3, LogOut, User, Wrench, History, PieChart, TrendingUp, Shield, AlertTriangle, CheckCircle, Brain, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import LanguageSelector from '@/components/LanguageSelector';
 import {
     BarChart,
     Bar,
@@ -33,7 +34,12 @@ const Dashboard = () => {
         shipmentsOverTime: [],
         statusDistribution: [],
         truckAvailability: [],
-        bookingTrends: []
+        bookingTrends: [],
+        safetyMetrics: {
+            totalRisks: 0,
+            prevented: 0,
+            overrides: 0
+        }
     });
 
     useEffect(() => {
@@ -56,6 +62,19 @@ const Dashboard = () => {
             if (response.ok) {
                 const data = await response.json();
 
+                // Fetch Safety Metrics
+                let safetyMetrics = { totalRisks: 0, prevented: 0, overrides: 0 };
+                try {
+                    const safetyRes = await fetch('http://localhost:3001/api/analytics/safety', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (safetyRes.ok) {
+                        safetyMetrics = await safetyRes.json();
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch safety metrics');
+                }
+
                 if (isWarehouse) {
                     setStats({
                         count: data.totalShipments,
@@ -65,7 +84,8 @@ const Dashboard = () => {
                         shipmentsOverTime: data.shipmentsOverTime || [],
                         statusDistribution: data.statusDistribution || [],
                         truckAvailability: [],
-                        bookingTrends: []
+                        bookingTrends: [],
+                        safetyMetrics
                     });
                 } else {
                     setStats({
@@ -76,7 +96,8 @@ const Dashboard = () => {
                         shipmentsOverTime: [],
                         statusDistribution: [],
                         truckAvailability: data.truckAvailability || [],
-                        bookingTrends: data.bookingTrends || []
+                        bookingTrends: data.bookingTrends || [],
+                        safetyMetrics
                     });
                 }
             }
@@ -95,7 +116,7 @@ const Dashboard = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-navy-dark via-navy-medium to-navy-dark">
             {/* Header */}
-            <nav className="border-b border-white/10 bg-background/50 backdrop-blur-sm">
+            <nav className="border-b border-white/10 bg-background/50 backdrop-blur-sm relative z-50">
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -105,7 +126,9 @@ const Dashboard = () => {
                             <span className="text-xl font-bold">LoadOptimize</span>
                         </div>
 
+
                         <div className="flex items-center gap-4">
+                            <LanguageSelector />
                             <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-background/50">
                                 <User className="w-4 h-4 text-teal" />
                                 <div className="text-sm">
@@ -215,6 +238,80 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Safety Metrics Section */}
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <Shield className="w-6 h-6 text-orange" />
+                        Safety & Compliance
+                    </h2>
+
+                    <div className="grid md:grid-cols-3 gap-6 mb-8">
+                        <div className="glass-card p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-orange/20 flex items-center justify-center">
+                                    <AlertTriangle className="w-6 h-6 text-orange" />
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold">{stats.safetyMetrics?.totalRisks || 0}</div>
+                                    <div className="text-sm text-muted-foreground">Total Risks Detected</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="glass-card p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-green/20 flex items-center justify-center">
+                                    <Shield className="w-6 h-6 text-green" />
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold">{stats.safetyMetrics?.prevented || 0}</div>
+                                    <div className="text-sm text-muted-foreground">Unsafe Bookings Prevented</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="glass-card p-6">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-blue/20 flex items-center justify-center">
+                                    <CheckCircle className="w-6 h-6 text-blue" />
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold">{stats.safetyMetrics?.overrides || 0}</div>
+                                    <div className="text-sm text-muted-foreground">Approved Overrides</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    {/* Intelligence Section */}
+                    {isWarehouse && (
+                        <div className="mb-8">
+                            <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                                <Brain className="w-6 h-6 text-purple-400" />
+                                Intelligence Center
+                            </h2>
+                            <div className="glass-card p-8 bg-gradient-to-r from-purple-900/20 to-blue-900/20 border-purple-500/30">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h3 className="text-xl font-bold mb-2">Smart Optimization Tools</h3>
+                                        <p className="text-gray-400 max-w-xl">
+                                            Access advanced features like Shipment Consolidation algorithms and What-If Simulations
+                                            to reduce costs and improve truck utilization.
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => navigate('/optimization')}
+                                        className="px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center gap-2"
+                                    >
+                                        Open Intelligence Hub
+                                        <ArrowRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Analytics Charts */}
                     <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
@@ -517,7 +614,7 @@ const Dashboard = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

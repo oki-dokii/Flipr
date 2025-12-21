@@ -250,6 +250,13 @@ export const optimizeTruckForShipment = async (shipment, trucks) => {
     });
 
     // Calculate distances for all trucks (in parallel)
+    console.log(`[Optimizer] Optimizing ${shipments.length} shipments for ${feasibleTrucks.length} trucks`);
+
+    // DEBUG LOG
+    feasibleTrucks.forEach(t => {
+        console.log(`[Optimizer] Available Truck: ${t.truck_name} (ID: ${t.id}), MaxW: ${t.max_weight_kg}, MaxV: ${t.max_volume_m3}`);
+    });
+
     const distancePromises = feasibleTrucks.map(async truck => {
         const dealerLoc = locationMap.get(truck.id) || {};
         const distance = await getDistance(

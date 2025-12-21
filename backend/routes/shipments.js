@@ -13,6 +13,18 @@ import db from '../database.js';
 
 const router = express.Router();
 
+// Get Pending Shipments for Optimization
+router.get('/pending', authenticateToken, requireRole('warehouse'), (req, res) => {
+    try {
+        const stmt = db.prepare('SELECT * FROM shipments WHERE warehouse_id = ? AND status = "pending" ORDER BY created_at DESC');
+        const shipments = stmt.all(req.userId);
+        res.json(shipments);
+    } catch (error) {
+        console.error('Get pending shipments error:', error);
+        res.status(500).json({ error: 'Failed to fetch pending shipments' });
+    }
+});
+
 // Upload new shipment (warehouse only)
 router.post('/', authenticateToken, requireRole('warehouse'), async (req, res) => {
     try {
