@@ -166,7 +166,7 @@ const TruckRecommendations = () => {
                                 <p className="text-muted-foreground">For {shipment.name}</p>
                             </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
                                 <span className="text-muted-foreground">Weight:</span>
                                 <span className="font-medium ml-2">{shipment.weight} kg</span>
@@ -174,6 +174,10 @@ const TruckRecommendations = () => {
                             <div>
                                 <span className="text-muted-foreground">Volume:</span>
                                 <span className="font-medium ml-2">{shipment.volume} m³</span>
+                            </div>
+                            <div>
+                                <span className="text-muted-foreground">Origin:</span>
+                                <span className="font-medium ml-2">{shipment.origin || 'Not specified'}</span>
                             </div>
                             <div>
                                 <span className="text-muted-foreground">Destination:</span>
