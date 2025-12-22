@@ -137,7 +137,7 @@ const App = () => {
                   }
                 />
                 <Route
-                  path="/recommendations"
+                  path="/recommendations/:shipmentId"
                   element={
                     <ProtectedRoute allowedRoles={['warehouse']}>
                       <TruckRecommendations />

@@ -22,7 +22,22 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:5000', 'http://0.0.0.0:5000', 'https://*.repl.co', 'https://*.replit.dev'],
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        // Allow localhost and all Replit domains
+        const allowedPatterns = [
+            /^http:\/\/localhost/,
+            /^http:\/\/0\.0\.0\.0/,
+            /\.repl\.co$/,
+            /\.replit\.dev$/,
+            /\.replit\.app$/
+        ];
+        if (allowedPatterns.some(pattern => pattern.test(origin))) {
+            return callback(null, true);
+        }
+        return callback(null, true); // Allow all for now
+    },
     credentials: true
 }));
 app.use(express.json());
