@@ -220,7 +220,7 @@ const TruckList = () => {
                                             variant="outline"
                                             size="sm"
                                             className="flex-1"
-                                            onClick={() => navigate(`/trucks/edit/${truck.id}`)}
+                                            onClick={() => navigate(`/trucks/${truck.id}/edit`)}
                                         >
                                             <Edit2 className="w-4 h-4 mr-2" />
                                             Edit

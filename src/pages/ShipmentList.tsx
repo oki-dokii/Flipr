@@ -214,7 +214,7 @@ const ShipmentList = () => {
                                                 variant="outline"
                                                 size="sm"
                                                 className="flex-1 bg-gradient-to-r from-cyan to-blue text-white border-0 hover:opacity-90"
-                                                onClick={() => navigate(`/shipments/${shipment.id}/track`)}
+                                                onClick={() => navigate(`/tracking/${shipment.id}`)}
                                             >
                                                 <MapPin className="w-4 h-4 mr-2" />
                                                 Track
@@ -234,7 +234,7 @@ const ShipmentList = () => {
                                             variant="outline"
                                             size="sm"
                                             className="text-cyan hover:bg-cyan/10"
-                                            onClick={() => navigate(`/shipments/edit/${shipment.id}`)}
+                                            onClick={() => navigate(`/shipments/${shipment.id}/edit`)}
                                         >
                                             <Edit className="w-4 h-4" />
                                         </Button>
@@ -253,7 +253,7 @@ const ShipmentList = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

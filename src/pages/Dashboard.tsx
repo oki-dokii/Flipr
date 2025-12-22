@@ -548,7 +548,7 @@ const Dashboard = () => {
                                         <Button
                                             variant="outline"
                                             className="h-24"
-                                            onClick={() => navigate('/bookings/my-bookings')}
+                                            onClick={() => navigate('/my-bookings')}
                                         >
                                             <div className="flex flex-col items-center gap-2">
                                                 <Truck className="w-6 h-6" />
@@ -558,7 +558,7 @@ const Dashboard = () => {
                                         <Button
                                             variant="outline"
                                             className="h-24"
-                                            onClick={() => navigate('/bookings/history')}
+                                            onClick={() => navigate('/booking-history')}
                                         >
                                             <div className="flex flex-col items-center gap-2">
                                                 <History className="w-6 h-6" />
@@ -590,7 +590,7 @@ const Dashboard = () => {
                                         <Button
                                             variant="outline"
                                             className="h-24"
-                                            onClick={() => navigate('/bookings/requests')}
+                                            onClick={() => navigate('/bookings')}
                                         >
                                             <div className="flex flex-col items-center gap-2">
                                                 <Package className="w-6 h-6" />
