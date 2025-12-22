@@ -37,12 +37,13 @@ export async function registerRoutes(
   // Wait a moment for the backend to start
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  // Proxy all /api requests to the Flipr backend on port 3001
+  // Proxy all /api requests to the Flipr backend on port 3002
+  // Using filter function to match /api/* paths and forward them with the /api prefix intact
   app.use(
-    "/api",
     createProxyMiddleware({
       target: "http://localhost:3002",
       changeOrigin: true,
+      pathFilter: '/api/**',
     })
   );
 
