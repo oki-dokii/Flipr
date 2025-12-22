@@ -3,8 +3,10 @@ import fs from "fs";
 import path from "path";
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "public");
-  if (!fs.existsSync(distPath)) {
+  // After build, __dirname is 'dist/' and vite outputs to 'dist/' as well
+  // So the static files are in the same directory as the server bundle
+  const distPath = path.resolve(__dirname);
+  if (!fs.existsSync(path.join(distPath, "index.html"))) {
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`,
     );

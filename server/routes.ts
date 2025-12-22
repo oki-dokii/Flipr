@@ -3,11 +3,20 @@ import { type Server } from "http";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { spawn } from "child_process";
 import path from "path";
+import fs from "fs";
 
-// Start the backend server on port 3001
+// Start the backend server on port 3002
 function startBackend() {
-  const backendPath = path.resolve(process.cwd(), "backend/server.js");
-  console.log("Starting backend server...");
+  // In production (dist/index.cjs), backend is at dist/backend/server.js
+  // In development, backend is at backend/server.js
+  let backendPath = path.resolve(process.cwd(), "backend/server.js");
+  
+  // Check if running from dist folder (production)
+  if (!fs.existsSync(backendPath)) {
+    backendPath = path.resolve(__dirname, "backend/server.js");
+  }
+  
+  console.log("Starting backend server from:", backendPath);
   
   const backend = spawn("node", [backendPath], {
     stdio: "inherit",
