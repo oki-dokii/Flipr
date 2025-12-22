@@ -1,11 +1,27 @@
-import { Suspense, useRef } from 'react';
+import { Suspense, useRef, Component, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment, Float, Stars, RoundedBox, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "../ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Truck } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+
+class WebGLErrorBoundary extends Component<{ children: React.ReactNode; fallback: React.ReactNode }, { hasError: boolean }> {
+    constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false };
+    }
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+    render() {
+        if (this.state.hasError) {
+            return this.props.fallback;
+        }
+        return this.props.children;
+    }
+}
 
 // Cargo box component
 export const CargoBox = ({ position, color, scale = 1 }: { position: [number, number, number]; color: string; scale?: number }) => {
@@ -257,33 +273,61 @@ const SceneContent = () => {
   );
 };
 
+const HeroFallback = () => (
+  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="text-center">
+      <Truck className="w-24 h-24 mx-auto mb-4 text-cyan" />
+      <p className="text-muted-foreground">Smart Truck Loading Visualization</p>
+    </div>
+  </div>
+);
+
 const Scene3DHero = () => {
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
   const navigate = useNavigate();
+  const [webglSupported, setWebglSupported] = useState(true);
+
+  useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) {
+        setWebglSupported(false);
+      }
+    } catch (e) {
+      setWebglSupported(false);
+    }
+  }, []);
 
   return (
     <div className="w-full h-[75vh] relative bg-background">
-      <Canvas
-        shadows
-        dpr={[1, 2]}
-        gl={{ antialias: true }}
-        style={{ background: 'transparent' }}
-      >
-        <PerspectiveCamera makeDefault position={[10, 6, 12]} fov={45} />
-        <OrbitControls
-          enablePan={false}
-          enableZoom={false}
-          minDistance={8}
-          maxDistance={25}
-          maxPolarAngle={Math.PI / 2.2}
-          autoRotate
-          autoRotateSpeed={0.4}
-        />
-        <Suspense fallback={null}>
-          <SceneContent />
-        </Suspense>
-      </Canvas>
+      {webglSupported ? (
+        <WebGLErrorBoundary fallback={<HeroFallback />}>
+          <Canvas
+            shadows
+            dpr={[1, 2]}
+            gl={{ antialias: true }}
+            style={{ background: 'transparent' }}
+          >
+            <PerspectiveCamera makeDefault position={[10, 6, 12]} fov={45} />
+            <OrbitControls
+              enablePan={false}
+              enableZoom={false}
+              minDistance={8}
+              maxDistance={25}
+              maxPolarAngle={Math.PI / 2.2}
+              autoRotate
+              autoRotateSpeed={0.4}
+            />
+            <Suspense fallback={null}>
+              <SceneContent />
+            </Suspense>
+          </Canvas>
+        </WebGLErrorBoundary>
+      ) : (
+        <HeroFallback />
+      )}
 
       {/* Title overlay */}
       <div className="absolute top-8 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none w-full px-4">

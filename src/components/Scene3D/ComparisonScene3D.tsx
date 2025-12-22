@@ -1,8 +1,25 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, RoundedBox, Environment } from '@react-three/drei';
 import { CargoBox } from './Scene3DHero';
-import { Suspense } from 'react';
+import { Suspense, Component, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Package } from 'lucide-react';
+
+class WebGLErrorBoundary extends Component<{ children: React.ReactNode; fallback: React.ReactNode }, { hasError: boolean }> {
+    constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false };
+    }
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+    render() {
+        if (this.state.hasError) {
+            return this.props.fallback;
+        }
+        return this.props.children;
+    }
+}
 const TrailerShell = ({ children }: { children: React.ReactNode }) => {
     return (
         <group position={[0, -0.8, 0]}>
@@ -88,19 +105,50 @@ const OptimizedLoad = () => {
     );
 };
 
+const FallbackView = ({ mode }: { mode: 'inefficient' | 'optimized' }) => (
+    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg">
+        <div className="text-center p-4">
+            <Package className={`w-12 h-12 mx-auto mb-2 ${mode === 'optimized' ? 'text-green-500' : 'text-red-500'}`} />
+            <p className="text-sm text-muted-foreground">
+                {mode === 'optimized' ? 'Optimized Loading' : 'Standard Loading'}
+            </p>
+        </div>
+    </div>
+);
+
 export const ComparisonScene3D = ({ mode }: { mode: 'inefficient' | 'optimized' }) => {
+    const [webglSupported, setWebglSupported] = useState(true);
+
+    useEffect(() => {
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (!gl) {
+                setWebglSupported(false);
+            }
+        } catch (e) {
+            setWebglSupported(false);
+        }
+    }, []);
+
+    if (!webglSupported) {
+        return <FallbackView mode={mode} />;
+    }
+
     return (
         <div className="w-full h-full">
-            <Canvas dpr={[1, 2]}>
-                <PerspectiveCamera makeDefault position={[3, 2.5, 4.5]} fov={50} />
-                <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={mode === 'optimized' ? 1 : 0.5} />
-                <ambientLight intensity={0.5} />
-                <directionalLight position={[5, 10, 5]} intensity={1} castShadow />
+            <WebGLErrorBoundary fallback={<FallbackView mode={mode} />}>
+                <Canvas dpr={[1, 2]}>
+                    <PerspectiveCamera makeDefault position={[3, 2.5, 4.5]} fov={50} />
+                    <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={mode === 'optimized' ? 1 : 0.5} />
+                    <ambientLight intensity={0.5} />
+                    <directionalLight position={[5, 10, 5]} intensity={1} castShadow />
 
-                <Suspense fallback={null}>
-                    {mode === 'inefficient' ? <InefficientLoad /> : <OptimizedLoad />}
-                </Suspense>
-            </Canvas>
+                    <Suspense fallback={null}>
+                        {mode === 'inefficient' ? <InefficientLoad /> : <OptimizedLoad />}
+                    </Suspense>
+                </Canvas>
+            </WebGLErrorBoundary>
         </div>
     );
 };

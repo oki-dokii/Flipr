@@ -244,7 +244,7 @@ const ShipmentList = () => {
                                             variant="outline"
                                             size="sm"
                                             className="text-cyan hover:bg-cyan/10"
-                                            onClick={() => navigate(`/shipments/edit/${shipment.id}`)}
+                                            onClick={() => navigate(`/shipments/${shipment.id}/edit`)}
                                         >
                                             <Edit className="w-4 h-4" />
                                         </Button>
