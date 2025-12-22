@@ -1,16 +1,68 @@
 import type { Express } from "express";
-import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { type Server } from "http";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import { spawn } from "child_process";
+import path from "path";
+
+// Start the backend server on port 3001
+function startBackend() {
+  const backendPath = path.resolve(process.cwd(), "backend/server.js");
+  console.log("Starting backend server...");
+  
+  const backend = spawn("node", [backendPath], {
+    stdio: "inherit",
+    env: { ...process.env, PORT: "3002" },
+  });
+  
+  backend.on("error", (err) => {
+    console.error("Failed to start backend:", err);
+  });
+  
+  backend.on("exit", (code) => {
+    if (code !== 0) {
+      console.error(`Backend exited with code ${code}`);
+    }
+  });
+  
+  return backend;
+}
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
+  // Start the backend server
+  startBackend();
+  
+  // Wait a moment for the backend to start
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  // Proxy all /api requests to the Flipr backend on port 3001
+  app.use(
+    "/api",
+    createProxyMiddleware({
+      target: "http://localhost:3002",
+      changeOrigin: true,
+    })
+  );
+
+  // Proxy /uploads requests to the backend for serving uploaded files
+  app.use(
+    "/uploads",
+    createProxyMiddleware({
+      target: "http://localhost:3002",
+      changeOrigin: true,
+    })
+  );
+
+  // Proxy /health requests to the backend
+  app.use(
+    "/health",
+    createProxyMiddleware({
+      target: "http://localhost:3002",
+      changeOrigin: true,
+    })
+  );
 
   return httpServer;
 }
