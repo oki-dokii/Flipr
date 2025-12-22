@@ -278,7 +278,7 @@ export const optimizeTruckForShipment = async (shipment, trucks) => {
     });
 
     // Calculate distances for all trucks (in parallel)
-    console.log(`[Optimizer] Optimizing ${shipments.length} shipments for ${feasibleTrucks.length} trucks`);
+    console.log(`[Optimizer] Optimizing shipment ${shipment.id} for ${feasibleTrucks.length} feasible trucks`);
 
     // DEBUG LOG
     feasibleTrucks.forEach(t => {
