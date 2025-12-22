@@ -74,12 +74,12 @@ router.post('/:shipmentId', authenticateToken, requireRole('warehouse'), async (
                 name: shipment.shipment_name,
                 weight: shipment.weight_kg,
                 volume: shipment.volume_m3,
-                origin: shipment.origin_city && shipment.origin_state
-                    ? `${shipment.origin_city}, ${shipment.origin_state}`
-                    : null,
-                destination: shipment.destination_city && shipment.destination_state
-                    ? `${shipment.destination_city}, ${shipment.destination_state}`
-                    : shipment.destination
+                origin: enrichedShipment.origin_city && enrichedShipment.origin_state
+                    ? `${enrichedShipment.origin_city}, ${enrichedShipment.origin_state}`
+                    : enrichedShipment.origin_city || null,
+                destination: enrichedShipment.destination_city && enrichedShipment.destination_state
+                    ? `${enrichedShipment.destination_city}, ${enrichedShipment.destination_state}`
+                    : enrichedShipment.destination
             },
             recommendations,
             message: recommendations.length === 0
