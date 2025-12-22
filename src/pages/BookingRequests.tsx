@@ -59,8 +59,8 @@ const BookingRequests = () => {
     const fetchBookings = async () => {
         try {
             const url = filter === 'all'
-                ? 'http://localhost:3001/api/bookings/dealer'
-                : `http://localhost:3001/api/bookings/dealer?status=${filter}`;
+                ? '/api/bookings/dealer'
+                : `/api/bookings/dealer?status=${filter}`;
 
             const response = await fetch(url, {
                 headers: {
@@ -87,7 +87,7 @@ const BookingRequests = () => {
 
     const handleApprove = async (bookingId: number) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/bookings/${bookingId}/approve`, {
+            const response = await fetch(`/api/bookings/${bookingId}/approve`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -115,7 +115,7 @@ const BookingRequests = () => {
 
     const handleReject = async (bookingId: number) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/bookings/${bookingId}/reject`, {
+            const response = await fetch(`/api/bookings/${bookingId}/reject`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -143,7 +143,7 @@ const BookingRequests = () => {
         if (!bookingToOverride || !overrideJustification.trim()) return;
 
         try {
-            const response = await fetch(`http://localhost:3001/api/bookings/${bookingToOverride}/override`, {
+            const response = await fetch(`/api/bookings/${bookingToOverride}/override`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -170,7 +170,7 @@ const BookingRequests = () => {
 
     const handleStartDelivery = async (shipmentId: number) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/shipments/${shipmentId}/in-transit`, {
+            const response = await fetch(`/api/shipments/${shipmentId}/in-transit`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -198,7 +198,7 @@ const BookingRequests = () => {
 
     const handleCompleteDelivery = async (shipmentId: number) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/shipments/${shipmentId}/deliver`, {
+            const response = await fetch(`/api/shipments/${shipmentId}/deliver`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`

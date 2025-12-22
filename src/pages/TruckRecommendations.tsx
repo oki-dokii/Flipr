@@ -41,7 +41,7 @@ const TruckRecommendations = () => {
 
     const fetchRecommendations = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/api/optimize/${shipmentId}`, {
+            const response = await fetch(`/api/optimize/${shipmentId}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -63,7 +63,7 @@ const TruckRecommendations = () => {
 
     const checkExistingBooking = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/bookings/warehouse', {
+            const response = await fetch('/api/bookings/warehouse', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -89,7 +89,7 @@ const TruckRecommendations = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3001/api/bookings/request', {
+            const response = await fetch('/api/bookings/request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

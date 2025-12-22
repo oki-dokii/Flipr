@@ -23,7 +23,7 @@ const TrackShipment = () => {
     const fetchMapsApiKey = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3001/api/maps/config', {
+            const response = await fetch('/api/maps/config', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
@@ -38,7 +38,7 @@ const TrackShipment = () => {
     const fetchTrackingData = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3001/api/shipments/${id}/tracking`, {
+            const response = await fetch(`/api/shipments/${id}/tracking`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

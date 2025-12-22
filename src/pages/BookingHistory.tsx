@@ -37,8 +37,8 @@ const BookingHistory = () => {
     const fetchArchivedBookings = async () => {
         try {
             const endpoint = user?.role === 'warehouse'
-                ? 'http://localhost:3001/api/bookings/warehouse/archived'
-                : 'http://localhost:3001/api/bookings/dealer/archived';
+                ? '/api/bookings/warehouse/archived'
+                : '/api/bookings/dealer/archived';
 
             const response = await fetch(endpoint, {
                 headers: {
@@ -61,7 +61,7 @@ const BookingHistory = () => {
         if (!confirm('Unarchive this booking?')) return;
 
         try {
-            const response = await fetch(`http://localhost:3001/api/bookings/${bookingId}/unarchive`, {
+            const response = await fetch(`/api/bookings/${bookingId}/unarchive`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`

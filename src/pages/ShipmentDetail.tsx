@@ -47,7 +47,7 @@ const ShipmentDetail = () => {
 
     const fetchShipmentDetails = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/api/shipments/${id}`, {
+            const response = await fetch(`/api/shipments/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -66,7 +66,7 @@ const ShipmentDetail = () => {
 
     const fetchBookingDetails = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/bookings/warehouse', {
+            const response = await fetch('/api/bookings/warehouse', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

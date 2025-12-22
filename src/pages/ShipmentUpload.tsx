@@ -39,7 +39,7 @@ const ShipmentUpload = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:3001/api/shipments', {
+            const response = await fetch('/api/shipments', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

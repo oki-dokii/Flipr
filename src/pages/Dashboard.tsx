@@ -55,7 +55,7 @@ const Dashboard = () => {
             const isWarehouse = user?.role === 'warehouse';
             const endpoint = isWarehouse ? '/api/stats/warehouse' : '/api/stats/dealer';
 
-            const response = await fetch(`http://localhost:3001${endpoint}`, {
+            const response = await fetch(endpoint, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -65,7 +65,7 @@ const Dashboard = () => {
                 // Fetch Safety Metrics
                 let safetyMetrics = { totalRisks: 0, prevented: 0, overrides: 0 };
                 try {
-                    const safetyRes = await fetch('http://localhost:3001/api/analytics/safety', {
+                    const safetyRes = await fetch('/api/analytics/safety', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (safetyRes.ok) {
@@ -165,7 +165,7 @@ const Dashboard = () => {
                             onClick={async () => {
                                 try {
                                     const endpoint = isWarehouse ? '/api/reports/shipments/csv' : '/api/reports/bookings/csv';
-                                    const response = await fetch(`http://localhost:3001${endpoint}`, {
+                                    const response = await fetch(endpoint, {
                                         headers: { 'Authorization': `Bearer ${token}` }
                                     });
                                     if (response.ok) {

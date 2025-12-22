@@ -64,7 +64,7 @@ const TruckRegistration = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:3001/api/trucks', {
+            const response = await fetch('/api/trucks', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

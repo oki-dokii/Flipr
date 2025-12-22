@@ -37,7 +37,7 @@ const TruckEdit = () => {
 
     const fetchTruck = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/api/trucks/${id}`, {
+            const response = await fetch(`/api/trucks/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -80,7 +80,7 @@ const TruckEdit = () => {
         setIsSaving(true);
 
         try {
-            const response = await fetch(`http://localhost:3001/api/trucks/${id}`, {
+            const response = await fetch(`/api/trucks/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ const TruckEdit = () => {
             const formData = new FormData();
             formData.append('image', selectedImage);
 
-            const response = await fetch(`http://localhost:3001/api/trucks/${id}/upload-image`, {
+            const response = await fetch(`/api/trucks/${id}/upload-image`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -257,7 +257,7 @@ const TruckEdit = () => {
                                     <Label>Current Image</Label>
                                     <div className="mt-2 relative w-full h-48 bg-background/30 rounded-lg overflow-hidden">
                                         <img
-                                            src={`http://localhost:3001${currentImageUrl}`}
+                                            src={currentImageUrl}
                                             alt="Truck"
                                             className="w-full h-full object-cover"
                                         />

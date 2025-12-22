@@ -30,7 +30,7 @@ const Optimization = () => {
 
     const fetchPendingShipments = async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/shipments/pending', {
+            const res = await fetch('/api/shipments/pending', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -43,7 +43,7 @@ const Optimization = () => {
     const runConsolidation = async () => {
         setLoadingConsolidation(true);
         try {
-            const res = await fetch('http://localhost:3001/api/optimization/consolidate', {
+            const res = await fetch('/api/optimization/consolidate', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -59,7 +59,7 @@ const Optimization = () => {
         if (selectedShipments.length === 0) return;
         setLoadingSimulation(true);
         try {
-            const res = await fetch('http://localhost:3001/api/optimization/simulate', {
+            const res = await fetch('/api/optimization/simulate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -31,7 +31,7 @@ const ShipmentList = () => {
 
     const fetchShipments = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/shipments', {
+            const response = await fetch('/api/shipments', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -52,7 +52,7 @@ const ShipmentList = () => {
         if (!confirm('Are you sure you want to delete this shipment?')) return;
 
         try {
-            const response = await fetch(`http://localhost:3001/api/shipments/${id}`, {
+            const response = await fetch(`/api/shipments/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

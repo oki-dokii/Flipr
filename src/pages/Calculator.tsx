@@ -62,7 +62,7 @@ const Calculator = () => {
         setIsCalculating(true);
 
         try {
-            const response = await fetch('http://localhost:3001/api/calculator/estimate', {
+            const response = await fetch('/api/calculator/estimate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

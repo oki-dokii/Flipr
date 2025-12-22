@@ -34,7 +34,7 @@ const MyBookings = () => {
 
     const fetchBookings = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/bookings/warehouse', {
+            const response = await fetch('/api/bookings/warehouse', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

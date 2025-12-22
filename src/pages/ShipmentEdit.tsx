@@ -33,7 +33,7 @@ const ShipmentEdit = () => {
 
     const fetchShipment = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/api/shipments/${id}`, {
+            const response = await fetch(`/api/shipments/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -81,7 +81,7 @@ const ShipmentEdit = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`http://localhost:3001/api/shipments/${id}`, {
+            const response = await fetch(`/api/shipments/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

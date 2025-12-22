@@ -36,7 +36,7 @@ const TruckList = () => {
 
     const fetchTrucks = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/trucks', {
+            const response = await fetch('/api/trucks', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -59,7 +59,7 @@ const TruckList = () => {
         if (!confirm('Are you sure you want to delete this truck?')) return;
 
         try {
-            const response = await fetch(`http://localhost:3001/api/trucks/${id}`, {
+            const response = await fetch(`/api/trucks/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -142,7 +142,7 @@ const TruckList = () => {
                                     <div className="mb-4 relative w-full h-40 bg-background/30 rounded-lg overflow-hidden">
                                         {truck.image_url ? (
                                             <img
-                                                src={`http://localhost:3001${truck.image_url}`}
+                                                src={truck.image_url}
                                                 alt={truck.truck_name}
                                                 className="w-full h-full object-cover"
                                             />

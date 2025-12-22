@@ -59,8 +59,8 @@ const MaintenanceSchedule = () => {
     const fetchMaintenance = async () => {
         try {
             const url = filter === 'all'
-                ? 'http://localhost:3001/api/maintenance'
-                : `http://localhost:3001/api/maintenance?status=${filter}`;
+                ? '/api/maintenance'
+                : `/api/maintenance?status=${filter}`;
 
             const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -79,7 +79,7 @@ const MaintenanceSchedule = () => {
 
     const fetchTrucks = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/trucks', {
+            const response = await fetch('/api/trucks', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -97,8 +97,8 @@ const MaintenanceSchedule = () => {
 
         try {
             const url = editingId
-                ? `http://localhost:3001/api/maintenance/${editingId}`
-                : 'http://localhost:3001/api/maintenance';
+                ? `/api/maintenance/${editingId}`
+                : '/api/maintenance';
 
             const response = await fetch(url, {
                 method: editingId ? 'PUT' : 'POST',
@@ -142,7 +142,7 @@ const MaintenanceSchedule = () => {
 
     const handleComplete = async (id: number) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/maintenance/${id}/complete`, {
+            const response = await fetch(`/api/maintenance/${id}/complete`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ const MaintenanceSchedule = () => {
         if (!confirm('Delete this maintenance record?')) return;
 
         try {
-            const response = await fetch(`http://localhost:3001/api/maintenance/${id}`, {
+            const response = await fetch(`/api/maintenance/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

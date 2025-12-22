@@ -15,7 +15,7 @@ const SystemLogs = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3001/api/admin/logs', {
+            const response = await fetch('/api/admin/logs', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -34,7 +34,7 @@ const SystemLogs = () => {
         if (!confirm('Are you sure you want to clear all system logs?')) return;
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3001/api/admin/logs', {
+            const response = await fetch('/api/admin/logs', {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -50,7 +50,7 @@ const SystemLogs = () => {
     const triggerTestAlert = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3001/api/admin/test-alert', {
+            const response = await fetch('/api/admin/test-alert', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
