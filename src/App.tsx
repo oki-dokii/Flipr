@@ -28,6 +28,7 @@ import TrackShipment from "./pages/TrackShipment";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import Optimization from "./pages/Optimization";
+import SystemLogs from "./pages/SystemLogs";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -183,11 +184,21 @@ const App = () => {
                     </ProtectedRoute>
                   }
                 />
+
+
                 <Route
                   path="/admin"
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
                       <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/logs"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <SystemLogs />
                     </ProtectedRoute>
                   }
                 />

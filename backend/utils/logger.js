@@ -20,7 +20,28 @@ export const logError = (error, req = null) => {
     const errorMessage = error.stack || error.message || error;
     const requestInfo = req ? `[${req.method} ${req.url}] User:${req.userId || 'anon'}` : '';
 
-    const logEntry = `[${timestamp}] ${requestInfo}\n${errorMessage}\n----------------------------------------\n`;
+    // Real Email Alert for Critical Errors
+    let alertLog = '';
+    const isCritical = errorMessage.includes('CRITICAL') || errorMessage.includes('Connection failed') || errorMessage.includes('System Alert');
+
+    if (isCritical) {
+        alertLog = `[ALERT SENT] Subject: Critical Error Detected | Timestamp: ${timestamp}\n`;
+
+        // Fire and forget email
+        import('./emailService.js').then(({ sendAlertEmail }) => {
+            sendAlertEmail('Critical Error Detected', `Error Details:\n${errorMessage}\n\nRequest Info:\n${requestInfo}`)
+                .then(result => {
+                    if (result && result.previewUrl) {
+                        const successMsg = `[EMAIL SUCCESS] View at: ${result.previewUrl}\n`;
+                        fs.appendFile(logFile, successMsg, () => { });
+                        console.log(successMsg.trim());
+                    }
+                })
+                .catch(err => console.error('Failed to send email:', err));
+        }).catch(err => console.error('Failed to load email service:', err));
+    }
+
+    const logEntry = `[${timestamp}] ${requestInfo}\n${alertLog}${errorMessage}\n----------------------------------------\n`;
 
     // Always log to console for dev visibility
     console.error(`[${timestamp}] ERROR:`, errorMessage);

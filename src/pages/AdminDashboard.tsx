@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Truck, Package, Users, Activity, LogOut, ShieldAlert } from 'lucide-react';
+import { Truck, Package, Users, Activity, LogOut, ShieldAlert, Terminal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import LanguageSelector from '@/components/LanguageSelector';
@@ -157,6 +157,21 @@ const AdminDashboard = () => {
                                 <div>
                                     <div className="text-2xl font-bold text-green-400">Operational</div>
                                     <div className="text-sm text-muted-foreground">System Status</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            className="glass-card p-6 cursor-pointer hover:bg-white/5 transition-colors"
+                            onClick={() => navigate('/admin/logs')}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-gray-500/20 flex items-center justify-center">
+                                    <Terminal className="w-6 h-6 text-gray-400" />
+                                </div>
+                                <div>
+                                    <div className="text-lg font-bold text-gray-200">System Logs</div>
+                                    <div className="text-sm text-muted-foreground">View Error Logs</div>
                                 </div>
                             </div>
                         </div>

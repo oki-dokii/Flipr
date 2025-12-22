@@ -1,6 +1,6 @@
+import 'dotenv/config'; // Must be first to load env vars before other imports
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import truckRoutes from './routes/trucks.js';
 import shipmentRoutes from './routes/shipments.js';
@@ -16,8 +16,6 @@ import analyticsRoutes from './routes/analytics.js';
 import optimizationRoutes from './routes/optimization.js';
 import { logError } from './utils/logger.js';
 import { dbPromise } from './database.js'; // Initialize database
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;

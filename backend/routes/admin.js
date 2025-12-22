@@ -1,5 +1,6 @@
 import express from 'express';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { logError } from '../utils/logger.js';
 import db from '../database.js';
 
 const router = express.Router();
@@ -95,6 +96,71 @@ router.get('/trucks', authenticateToken, requireRole('admin'), (req, res) => {
         res.json(trucks);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch trucks' });
+    }
+});
+
+// Get System Logs
+router.get('/logs', authenticateToken, requireRole('admin'), async (req, res) => {
+    try {
+        const { getLogs } = await import('../utils/logger.js');
+        // We'll need to export a read function from logger.js or read directly here
+        // Ideally logger.js should handle file paths
+        const fs = await import('fs');
+        const path = await import('path');
+        const { fileURLToPath } = await import('url');
+
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const logPath = path.join(__dirname, '..', 'logs', 'error.log');
+
+        if (!fs.existsSync(logPath)) {
+            return res.json({ logs: [] });
+        }
+
+        const logs = fs.readFileSync(logPath, 'utf8')
+            .split('\n----------------------------------------\n')
+            .filter(Boolean)
+            .reverse() // Newest first
+            .slice(0, 100); // Limit to last 100
+
+        res.json({ logs });
+    } catch (error) {
+        console.error('Fetch logs error:', error);
+        res.status(500).json({ error: 'Failed to fetch system logs' });
+    }
+});
+
+// Clear System Logs
+router.delete('/logs', authenticateToken, requireRole('admin'), async (req, res) => {
+    try {
+        const fs = await import('fs');
+        const path = await import('path');
+        const { fileURLToPath } = await import('url');
+
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const logPath = path.join(__dirname, '..', 'logs', 'error.log');
+
+        if (fs.existsSync(logPath)) {
+            fs.writeFileSync(logPath, ''); // Clear file
+        }
+
+        res.json({ message: 'System logs cleared successfully' });
+    } catch (error) {
+        console.error('Clear logs error:', error);
+        res.status(500).json({ error: 'Failed to clear system logs' });
+    }
+});
+
+// Trigger Test Alert
+router.post('/test-alert', authenticateToken, requireRole('admin'), (req, res) => {
+    try {
+        // Log a fake critical error
+        logError(new Error('CRITICAL: Manual test alert triggered by admin'), req);
+        res.json({ message: 'Simulated alert triggered successfully' });
+    } catch (error) {
+        console.error('Alert test error:', error);
+        res.status(500).json({ error: 'Failed to trigger alert' });
     }
 });
 

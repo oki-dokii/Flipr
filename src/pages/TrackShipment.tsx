@@ -3,19 +3,37 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, Truck, Package, Clock, Navigation } from 'lucide-react';
 import { toast } from 'sonner';
+import MapComponent from '@/components/MapComponent';
 
 const TrackShipment = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [trackingData, setTrackingData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [apiKey, setApiKey] = useState<string>('');
 
     useEffect(() => {
+        fetchMapsApiKey();
         fetchTrackingData();
         // Refresh every 30 seconds
         const interval = setInterval(fetchTrackingData, 30000);
         return () => clearInterval(interval);
     }, [id]);
+
+    const fetchMapsApiKey = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:3001/api/maps/config', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setApiKey(data.apiKey);
+            }
+        } catch (error) {
+            console.error('Failed to fetch Maps API key');
+        }
+    };
 
     const fetchTrackingData = async () => {
         try {
@@ -129,47 +147,30 @@ const TrackShipment = () => {
                             Route Map
                         </h2>
 
-                        {/* Simple route visualization */}
-                        <div className="relative bg-background/30 rounded-lg p-8 h-80 flex flex-col justify-between">
-                            {/* Origin */}
-                            <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 rounded-full bg-teal"></div>
-                                <div>
-                                    <p className="font-medium">{tracking.origin.name}</p>
-                                    <p className="text-xs text-muted-foreground">Origin</p>
+                        {/* Real Google Map Visualization */}
+                        <div className="relative bg-background/30 rounded-lg overflow-hidden h-80">
+                            {apiKey && tracking.route ? (
+                                <MapComponent
+                                    apiKey={apiKey}
+                                    origin={{
+                                        lat: Number(tracking.origin.lat) || 28.6139,
+                                        lng: Number(tracking.origin.lng) || 77.2090
+                                    }}
+                                    destination={{
+                                        lat: Number(tracking.destination.lat) || 19.0760,
+                                        lng: Number(tracking.destination.lng) || 72.8777
+                                    }}
+                                    currentLocation={tracking.currentLocation ? {
+                                        lat: Number(tracking.currentLocation.lat),
+                                        lng: Number(tracking.currentLocation.lng)
+                                    } : undefined}
+                                    routePolyline={tracking.route.polyline}
+                                />
+                            ) : (
+                                <div className="flex h-full items-center justify-center text-muted-foreground">
+                                    Loading Map...
                                 </div>
-                            </div>
-
-                            {/* Route Line */}
-                            <div className="flex-1 flex items-center justify-center">
-                                <div className="relative w-full">
-                                    <div className="absolute left-0 top-1/2 w-full h-1 bg-gradient-to-r from-teal via-cyan to-green"></div>
-
-                                    {/* Current Position */}
-                                    {tracking.progress > 0 && tracking.progress < 100 && (
-                                        <div
-                                            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
-                                            style={{ left: `${tracking.progress}%` }}
-                                        >
-                                            <div className="relative">
-                                                <Truck className="w-8 h-8 text-cyan animate-pulse" />
-                                                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                                                    <p className="text-xs font-medium">Current</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Destination */}
-                            <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 rounded-full bg-green"></div>
-                                <div>
-                                    <p className="font-medium">{tracking.destination.name}</p>
-                                    <p className="text-xs text-muted-foreground">Destination</p>
-                                </div>
-                            </div>
+                            )}
                         </div>
 
                         <div className="mt-4 grid grid-cols-2 gap-4">

@@ -4,6 +4,18 @@ import { calculateDistance, getRoute, geocodeAddress } from '../services/maps.js
 const router = express.Router();
 
 /**
+ * GET /api/maps/config
+ * Get Google Maps API Key
+ */
+router.get('/config', (req, res) => {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+        return res.status(500).json({ error: 'Maps API Key not configured' });
+    }
+    res.json({ apiKey });
+});
+
+/**
  * POST /api/maps/distance
  * Calculate distance between two locations
  */

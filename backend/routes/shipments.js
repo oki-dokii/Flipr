@@ -9,6 +9,7 @@ import {
     getPendingShipments
 } from '../models/Shipment.js';
 import { calculateMockLocation, calculateETA, getTrackingTimeline } from '../services/trackingService.js';
+import { getRoute } from '../services/maps.js';
 import db from '../database.js';
 
 const router = express.Router();
@@ -258,6 +259,18 @@ router.get('/:id/tracking', authenticateToken, async (req, res) => {
             latitude: shipment.destination_latitude,
             longitude: shipment.destination_longitude
         });
+
+        // Fetch real route polyline for the map
+        try {
+            const originStr = `${trackingData.origin.latitude},${trackingData.origin.longitude}`;
+            const destStr = `${trackingData.destination.latitude},${trackingData.destination.longitude}`;
+            const routeData = await getRoute(originStr, destStr);
+            if (routeData) {
+                trackingData.route = routeData;
+            }
+        } catch (routeError) {
+            console.error('Failed to fetch route for tracking:', routeError);
+        }
 
         // Calculate ETA using delivery deadline
         const distance = shipment.estimated_distance_km || 500;
