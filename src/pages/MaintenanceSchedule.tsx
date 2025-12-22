@@ -343,7 +343,7 @@ const MaintenanceSchedule = () => {
                                 </div>
 
                                 <div>
-                                    <Label>Estimated Cost ($)</Label>
+                                    <Label>Estimated Cost (₹)</Label>
                                     <Input
                                         type="number"
                                         step="0.01"
@@ -441,9 +441,9 @@ const MaintenanceSchedule = () => {
                                     )}
                                     {record.cost && (
                                         <div className="flex items-center gap-2 text-sm">
-                                            <DollarSign className="w-4 h-4 text-yellow" />
+                                            <div className="font-sans font-medium text-yellow">₹</div>
                                             <span className="text-muted-foreground">Cost:</span>
-                                            <span className="font-medium">${record.cost.toFixed(2)}</span>
+                                            <span className="font-medium">₹{record.cost.toFixed(2)}</span>
                                         </div>
                                     )}
                                 </div>

@@ -125,6 +125,23 @@ router.put('/:id', authenticateToken, requireRole('dealer'), (req, res) => {
     try {
         const { maintenance_type, scheduled_date, notes, cost, status } = req.body;
 
+        // Check for booking conflicts if date is being updated
+        if (scheduled_date) {
+            const existingRecord = getMaintenanceById(req.params.id);
+            if (existingRecord && existingRecord.scheduled_date !== scheduled_date) {
+                const conflict = checkBookingOverlap(existingRecord.truck_id, scheduled_date, scheduled_date);
+                if (conflict) {
+                    return res.status(409).json({
+                        error: 'Truck is booked on this date',
+                        conflict: {
+                            bookingId: conflict.id,
+                            status: conflict.status
+                        }
+                    });
+                }
+            }
+        }
+
         const success = updateMaintenance(req.params.id, req.userId, {
             maintenance_type,
             scheduled_date,
