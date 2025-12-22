@@ -275,17 +275,27 @@ const ShipmentDetail = () => {
                         <h2 className="text-xl font-semibold mb-4">Booking Status</h2>
                         <div className="text-center py-8">
                             <Truck className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-                            <p className="text-muted-foreground mb-4">No truck booking yet</p>
-                            <Button onClick={() => navigate(`/recommendations/${id}`)}>
-                                Find Trucks
-                            </Button>
+                            {shipment?.status === 'delivered' ? (
+                                <p className="text-muted-foreground mb-4">Shipment has been delivered</p>
+                            ) : shipment?.status === 'assigned' ? (
+                                <p className="text-muted-foreground mb-4">Truck has been assigned</p>
+                            ) : shipment?.status === 'in_transit' ? (
+                                <p className="text-muted-foreground mb-4">Shipment is in transit</p>
+                            ) : (
+                                <>
+                                    <p className="text-muted-foreground mb-4">No truck booking yet</p>
+                                    <Button onClick={() => navigate(`/recommendations/${id}`)}>
+                                        Find Trucks
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
                 )}
 
                 {/* Actions */}
                 <div className="flex gap-3">
-                    {!booking && (
+                    {shipment?.status !== 'delivered' && shipment?.status !== 'assigned' && shipment?.status !== 'in_transit' && (!booking || booking.status === 'rejected') && (
                         <Button
                             className="flex-1 bg-gradient-to-r from-teal to-cyan"
                             onClick={() => navigate(`/recommendations/${id}`)}

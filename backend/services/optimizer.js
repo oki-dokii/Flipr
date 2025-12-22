@@ -103,6 +103,26 @@ export const calculateCapacityScore = (shipment, truck) => {
     return utilization * 100;
 };
 
+// Map Indian states to their regions
+const STATE_TO_REGION = {
+    // North India
+    'delhi': 'north', 'haryana': 'north', 'punjab': 'north', 'himachal pradesh': 'north',
+    'uttarakhand': 'north', 'uttar pradesh': 'north', 'jammu and kashmir': 'north',
+    'ladakh': 'north', 'chandigarh': 'north', 'rajasthan': 'north',
+    // South India
+    'karnataka': 'south', 'kerala': 'south', 'tamil nadu': 'south', 
+    'andhra pradesh': 'south', 'telangana': 'south', 'puducherry': 'south',
+    // West India
+    'maharashtra': 'west', 'gujarat': 'west', 'goa': 'west', 
+    'dadra and nagar haveli': 'west', 'daman and diu': 'west',
+    // East India
+    'west bengal': 'east', 'odisha': 'east', 'bihar': 'east', 'jharkhand': 'east',
+    'sikkim': 'east', 'assam': 'east', 'meghalaya': 'east', 'tripura': 'east',
+    'mizoram': 'east', 'manipur': 'east', 'nagaland': 'east', 'arunachal pradesh': 'east',
+    // Central India
+    'madhya pradesh': 'central', 'chhattisgarh': 'central'
+};
+
 /**
  * Calculate route compatibility score
  * @param {Object} shipment - Shipment details
@@ -120,11 +140,19 @@ export const calculateRouteScore = (shipment, truck) => {
         return 100;
     }
 
-    // Check if destination state matches any service region
+    // Get the region for the destination state
+    const destRegion = STATE_TO_REGION[destinationState];
+
+    // Check if destination state/region matches any service region
     for (const region of serviceRegions) {
         const cleanRegion = region.replace(' india', '').trim();
 
-        // Match by state (primary method)
+        // Match by region (e.g., "North India" matches states in north region)
+        if (destRegion && cleanRegion === destRegion) {
+            return 100;
+        }
+
+        // Match by state directly (primary method)
         if (destinationState === cleanRegion) {
             return 100;
         }

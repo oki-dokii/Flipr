@@ -4,10 +4,10 @@ import { getSafetyMetrics } from '../models/Booking.js';
 
 const router = express.Router();
 
-// Get safety metrics
+// Get safety metrics (user-specific)
 router.get('/safety', authenticateToken, (req, res) => {
     try {
-        const metrics = getSafetyMetrics();
+        const metrics = getSafetyMetrics(req.userId, req.userRole);
         res.json(metrics);
     } catch (error) {
         console.error('Get safety metrics error:', error);

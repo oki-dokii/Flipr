@@ -351,31 +351,51 @@ export const overrideBooking = (bookingId, dealerId, justification) => {
 };
 
 /**
- * Get safety metrics related to overload protection
+ * Get safety metrics related to overload protection (user-specific)
+ * @param {number} userId - The user's ID
+ * @param {string} userRole - The user's role ('dealer' or 'warehouse')
  */
-export const getSafetyMetrics = () => {
-    // 1. Overload risks detected (all bookings that were ever ON HOLD or REJECTED with overload warning)
+export const getSafetyMetrics = (userId, userRole) => {
+    // Build user-specific filter based on role
+    let userFilter = '';
+    let params = [];
+    
+    if (userRole === 'dealer') {
+        // Dealer sees metrics for their trucks
+        userFilter = 'AND br.dealer_id = ?';
+        params = [userId];
+    } else if (userRole === 'warehouse') {
+        // Warehouse sees metrics for their shipments
+        userFilter = 'AND br.warehouse_id = ?';
+        params = [userId];
+    }
+    // Admin or other roles see all metrics (no filter)
+
+    // 1. Overload risks detected (bookings with overload warning)
     const totalRisks = db.prepare(`
         SELECT COUNT(*) as count 
-        FROM booking_requests 
-        WHERE notes LIKE '%[SYSTEM] Overload Protection%'
-    `).get().count;
+        FROM booking_requests br
+        WHERE br.notes LIKE '%[SYSTEM] Overload Protection%'
+        ${userFilter}
+    `).get(...params).count;
 
-    // 2. Unsafe bookings prevented (current status is ON HOLD or REJECTED and has overload warning)
+    // 2. Unsafe bookings prevented (on_hold or rejected with overload warning)
     const prevented = db.prepare(`
         SELECT COUNT(*) as count 
-        FROM booking_requests 
-        WHERE status IN ('on_hold', 'rejected') 
-        AND notes LIKE '%[SYSTEM] Overload Protection%'
-    `).get().count;
+        FROM booking_requests br
+        WHERE br.status IN ('on_hold', 'rejected') 
+        AND br.notes LIKE '%[SYSTEM] Overload Protection%'
+        ${userFilter}
+    `).get(...params).count;
 
     // 3. Overrides (Approved with override note)
     const overrides = db.prepare(`
         SELECT COUNT(*) as count 
-        FROM booking_requests 
-        WHERE status = 'approved' 
-        AND notes LIKE '%[OVERRIDE]%'
-    `).get().count;
+        FROM booking_requests br
+        WHERE br.status = 'approved' 
+        AND br.notes LIKE '%[OVERRIDE]%'
+        ${userFilter}
+    `).get(...params).count;
 
     return {
         totalRisks,

@@ -219,6 +219,16 @@ const ShipmentList = () => {
                                                 <MapPin className="w-4 h-4 mr-2" />
                                                 Track
                                             </Button>
+                                        ) : shipment.status === 'delivered' || shipment.status === 'assigned' ? (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="flex-1"
+                                                disabled
+                                            >
+                                                <Truck className="w-4 h-4 mr-2" />
+                                                {shipment.status === 'delivered' ? 'Delivered' : 'Assigned'}
+                                            </Button>
                                         ) : (
                                             <Button
                                                 variant="outline"
