@@ -97,7 +97,7 @@ const App = () => {
                   }
                 />
                 <Route
-                  path="/trucks/:id/edit"
+                  path="/trucks/edit/:id"
                   element={
                     <ProtectedRoute allowedRoles={['dealer']}>
                       <TruckEdit />
