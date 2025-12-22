@@ -3,6 +3,8 @@ import { authenticateToken, requireRole } from '../middleware/auth.js';
 import { getShipmentById } from '../models/Shipment.js';
 import { getAvailableTrucks } from '../models/Truck.js';
 import { optimizeTruckForShipment } from '../services/optimizer.js';
+import { findUserById } from '../models/User.js';
+import { getCityCoordinates } from '../services/addressService.js';
 
 const router = express.Router();
 
@@ -39,8 +41,32 @@ router.post('/:shipmentId', authenticateToken, requireRole('warehouse'), async (
             });
         }
 
-        // Run optimization (NOW ASYNC - uses Google Maps for real distances!)
-        const recommendations = await optimizeTruckForShipment(shipment, trucks);
+        const warehouse = findUserById(req.userId);
+
+        console.log(`[Optimize] optimizing for User ID: ${req.userId}, Warehouse found: ${warehouse ? 'Yes' : 'No'}`);
+        if (warehouse) console.log(`[Optimize] Warehouse Loc: ${warehouse.city}, ${warehouse.state}`);
+
+        // Enhance shipment object with origin details
+        const enrichedShipment = {
+            ...shipment,
+            origin_latitude: warehouse?.latitude || null,
+            origin_longitude: warehouse?.longitude || null,
+            origin_city: warehouse?.city || shipment.origin_city,
+            origin_state: warehouse?.state || shipment.origin_state
+        };
+
+        // Attempt fallback geocoding if origin coords missing
+        if (!enrichedShipment.origin_latitude && enrichedShipment.origin_city) {
+            const coords = getCityCoordinates(enrichedShipment.origin_city);
+            if (coords) {
+                enrichedShipment.origin_latitude = coords.lat;
+                enrichedShipment.origin_longitude = coords.lon || coords.lng;
+            }
+        }
+
+        // Run optimization (NOW ASYNC - uses Google Maps/Fallback for real distances!)
+        // Note: Optimizer now calculates Truck -> Shipment Origin distance
+        const recommendations = await optimizeTruckForShipment(enrichedShipment, trucks);
 
         res.json({
             shipment: {
@@ -48,8 +74,8 @@ router.post('/:shipmentId', authenticateToken, requireRole('warehouse'), async (
                 name: shipment.shipment_name,
                 weight: shipment.weight_kg,
                 volume: shipment.volume_m3,
-                origin: shipment.origin_city && shipment.origin_state 
-                    ? `${shipment.origin_city}, ${shipment.origin_state}` 
+                origin: shipment.origin_city && shipment.origin_state
+                    ? `${shipment.origin_city}, ${shipment.origin_state}`
                     : null,
                 destination: shipment.destination_city && shipment.destination_state
                     ? `${shipment.destination_city}, ${shipment.destination_state}`

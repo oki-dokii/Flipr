@@ -110,10 +110,10 @@ const STATE_TO_REGION = {
     'uttarakhand': 'north', 'uttar pradesh': 'north', 'jammu and kashmir': 'north',
     'ladakh': 'north', 'chandigarh': 'north', 'rajasthan': 'north',
     // South India
-    'karnataka': 'south', 'kerala': 'south', 'tamil nadu': 'south', 
+    'karnataka': 'south', 'kerala': 'south', 'tamil nadu': 'south',
     'andhra pradesh': 'south', 'telangana': 'south', 'puducherry': 'south',
     // West India
-    'maharashtra': 'west', 'gujarat': 'west', 'goa': 'west', 
+    'maharashtra': 'west', 'gujarat': 'west', 'goa': 'west',
     'dadra and nagar haveli': 'west', 'daman and diu': 'west',
     // East India
     'west bengal': 'east', 'odisha': 'east', 'bihar': 'east', 'jharkhand': 'east',
@@ -290,11 +290,11 @@ export const optimizeTruckForShipment = async (shipment, trucks) => {
         const distance = await getDistance(
             dealerLoc.lat,
             dealerLoc.lng,
-            shipment.destination_latitude,
-            shipment.destination_longitude,
+            shipment.origin_latitude,
+            shipment.origin_longitude,
             dealerLoc.city,
-            shipment.destination_city,
-            shipment.destination_state
+            shipment.origin_city,
+            shipment.origin_state
         );
         return { truck, distance };
     });

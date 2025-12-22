@@ -1,4 +1,7 @@
 import { Client } from '@googlemaps/google-maps-services-js';
+import { getCityCoordinates, calculateDistance as calculateHaversineDistance } from './addressService.js';
+
+export { calculateHaversineDistance };
 
 const client = new Client({});
 
@@ -12,11 +15,64 @@ const API_KEY = process.env.GOOGLE_MAPS_API_KEY || '';
  * @returns {Promise<{distance: number, duration: number}>} Distance in km, duration in minutes
  */
 export const calculateDistance = async (origin, destination) => {
+    // Helper to get coords from string "lat,lng" or city name
+    const resolveCoords = (input) => {
+        if (!input) return null;
+
+        // Try parsing "lat,lng"
+        if (input.includes(',')) {
+            const parts = input.split(',').map(p => p.trim());
+            const lat = parseFloat(parts[0]);
+            const lng = parseFloat(parts[1]);
+            // If parts are numbers (and not just "City, State"), use them
+            if (!isNaN(lat) && !isNaN(lng) && input.match(/^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/)) {
+                return { lat, lng };
+            }
+        }
+
+        // Try city lookup
+        // Extract city if format is "City, State"
+        const cityName = input.split(',')[0].trim();
+        const cityCoords = getCityCoordinates(cityName);
+        if (cityCoords) {
+            return { lat: cityCoords.lat, lng: cityCoords.lon || cityCoords.lng };
+        }
+
+        return null;
+    };
+
     try {
         if (!API_KEY) {
-            console.warn('[Maps] No API key configured, using fallback distance');
-            // Fallback: approximate distance based on coordinates if provided
-            return { distance: 500, duration: 600 }; // Default fallback
+            console.warn('[Maps] No API key, attempting local fallback...');
+
+            console.log(`[Maps] Calculating distance for Origin: "${origin}" -> Destination: "${destination}"`);
+
+            const originCoords = resolveCoords(origin);
+            const destCoords = resolveCoords(destination);
+
+            if (!originCoords) console.warn(`[Maps] Failed to resolve origin: "${origin}"`);
+            if (!destCoords) console.warn(`[Maps] Failed to resolve destination: "${destination}"`);
+
+            if (originCoords && destCoords) {
+                const km = calculateHaversineDistance(
+                    originCoords.lat, originCoords.lng,
+                    destCoords.lat, destCoords.lng
+                );
+                console.log(`[Maps] Local calc: ${origin} -> ${destination} = ${km}km`);
+
+                // Estimate duration: 60km/h avg speed
+                const durationMins = Math.round((km / 60) * 60);
+
+                return {
+                    distance: km,
+                    duration: durationMins,
+                    distanceText: `${km} km`,
+                    durationText: `${Math.round(durationMins / 60)} hours`
+                };
+            }
+
+            console.warn('[Maps] Could not resolve coordinates locally, using static fallback.');
+            return { distance: 500, duration: 600 };
         }
 
         const response = await client.distancematrix({
@@ -129,23 +185,4 @@ export const geocodeAddress = async (address) => {
     }
 };
 
-/**
- * Calculate distance between two coordinate points using Haversine formula
- * Fallback method when Google Maps API is not available
- * @param {number} lat1 - Latitude of point 1
- * @param {number} lon1 - Longitude of point 1
- * @param {number} lat2 - Latitude of point 2
- * @param {number} lon2 - Longitude of point 2
- * @returns {number} Distance in kilometers
- */
-export const calculateHaversineDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Earth's radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-};
+
