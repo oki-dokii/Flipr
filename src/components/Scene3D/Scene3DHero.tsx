@@ -142,6 +142,8 @@ const FloatingPanel = ({
         distanceFactor={8}
         style={{
           width: '200px',
+          pointerEvents: 'none',
+          userSelect: 'none',
         }}
       >
         <div
@@ -150,6 +152,7 @@ const FloatingPanel = ({
             background: 'rgba(10, 22, 40, 0.85)',
             borderColor: color,
             boxShadow: `0 0 30px ${color}40`,
+            pointerEvents: 'none',
           }}
         >
           <div className="text-xs font-semibold mb-1" style={{ color }}>{title}</div>
@@ -237,12 +240,13 @@ const SceneContent = () => {
       />
 
       {/* Status bar under truck */}
-      <Html position={[0, -0.2, 3]} transform distanceFactor={8}>
+      <Html position={[0, -0.2, 3]} transform distanceFactor={8} style={{ pointerEvents: 'none', userSelect: 'none' }}>
         <div
           className="px-6 py-2 rounded-full flex items-center gap-4"
           style={{
             background: 'rgba(13, 27, 42, 0.9)',
             border: '1px solid rgba(231, 76, 60, 0.5)',
+            pointerEvents: 'none',
           }}
         >
           <span className="text-gray-400 text-sm">LOAD STATUS:</span>
@@ -302,32 +306,35 @@ const Scene3DHero = () => {
 
   return (
     <div className="w-full h-[85vh] relative bg-background">
-      {webglSupported ? (
-        <WebGLErrorBoundary fallback={<HeroFallback />}>
-          <Canvas
-            shadows
-            dpr={[1, 2]}
-            gl={{ antialias: true }}
-            style={{ background: 'transparent', pointerEvents: 'none' }}
-          >
-            <PerspectiveCamera makeDefault position={[10, 6, 12]} fov={45} />
-            <OrbitControls
-              enablePan={false}
-              enableZoom={false}
-              minDistance={8}
-              maxDistance={25}
-              maxPolarAngle={Math.PI / 2.2}
-              autoRotate
-              autoRotateSpeed={0.4}
-            />
-            <Suspense fallback={null}>
-              <SceneContent />
-            </Suspense>
-          </Canvas>
-        </WebGLErrorBoundary>
-      ) : (
-        <HeroFallback />
-      )}
+      {/* pointer-events-none wrapper ensures drei Html portals can't block clicks */}
+      <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
+        {webglSupported ? (
+          <WebGLErrorBoundary fallback={<HeroFallback />}>
+            <Canvas
+              shadows
+              dpr={[1, 2]}
+              gl={{ antialias: true }}
+              style={{ background: 'transparent', width: '100%', height: '100%' }}
+            >
+              <PerspectiveCamera makeDefault position={[10, 6, 12]} fov={45} />
+              <OrbitControls
+                enablePan={false}
+                enableZoom={false}
+                minDistance={8}
+                maxDistance={25}
+                maxPolarAngle={Math.PI / 2.2}
+                autoRotate
+                autoRotateSpeed={0.4}
+              />
+              <Suspense fallback={null}>
+                <SceneContent />
+              </Suspense>
+            </Canvas>
+          </WebGLErrorBoundary>
+        ) : (
+          <HeroFallback />
+        )}
+      </div>
 
       {/* Title overlay — top-20 clears the fixed navbar (~80px) */}
       <div className="absolute top-20 left-1/2 -translate-x-1/2 text-center z-20 pointer-events-none w-full px-4">
