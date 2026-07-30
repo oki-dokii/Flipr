@@ -305,7 +305,8 @@ const Scene3DHero = () => {
   }, []);
 
   return (
-    <div className="w-full h-[85vh] relative bg-background">
+    <>
+    <div className="w-full h-[75vh] relative bg-background">
       {/* pointer-events-none wrapper ensures drei Html portals can't block clicks */}
       <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
         {webglSupported ? (
@@ -405,27 +406,31 @@ const Scene3DHero = () => {
         </motion.div>
       </div>
 
-      {/* CTA buttons — z-30 so it's above canvas and vignette, pointer-events-auto to receive clicks */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-4 z-30 items-center justify-center w-full px-4" style={{ pointerEvents: 'auto' }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 3.5, duration: 0.5 }}
-        >
-          <Button
-            size="xl"
-            onClick={() => navigate('/register')}
-            className="rounded-full bg-gradient-to-r from-cyan to-teal text-primary-foreground font-semibold text-lg hover:scale-110 hover:shadow-cyan/50 shadow-lg transition-all duration-300 pointer-events-auto"
-          >
-            Get Started
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
-        </motion.div>
-      </div>
-
       {/* Vignette */}
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_40%,hsl(var(--background))_100%)]" />
-    </div >
+    </div>
+
+    {/* Dedicated CTA Action Bar outside of 3D canvas viewport */}
+    <div className="relative z-20 py-6 bg-gradient-to-b from-transparent to-background/80 flex flex-col sm:flex-row gap-4 items-center justify-center px-4">
+      <Button
+        size="xl"
+        onClick={() => navigate('/register')}
+        className="rounded-full bg-gradient-to-r from-teal to-cyan text-primary-foreground font-semibold text-lg hover:scale-105 hover:shadow-cyan/50 shadow-lg transition-all duration-300 px-8"
+      >
+        Get Started
+        <ArrowRight className="ml-2 w-5 h-5" />
+      </Button>
+
+      <Button
+        size="xl"
+        variant="outline"
+        onClick={() => navigate('/calculator')}
+        className="rounded-full border-teal/40 hover:border-teal text-foreground font-semibold text-lg hover:bg-teal/10 transition-all duration-300 px-8"
+      >
+        Quick Calculator
+      </Button>
+    </div>
+    </>
   );
 };
 
