@@ -29,6 +29,16 @@ import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import Optimization from "./pages/Optimization";
 import SystemLogs from "./pages/SystemLogs";
+import Pricing from "./pages/Pricing";
+import Integrations from "./pages/Integrations";
+import ApiDocs from "./pages/ApiDocs";
+import About from "./pages/About";
+import Blog from "./pages/Blog";
+import Careers from "./pages/Careers";
+import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Security from "./pages/Security";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -64,6 +74,16 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/calculator" element={<Calculator />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/integrations" element={<Integrations />} />
+                <Route path="/api-docs" element={<ApiDocs />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/careers" element={<Careers />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/security" element={<Security />} />
                 <Route
                   path="/optimization"
                   element={
