@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import HeroSection from "../components/HeroSection";
+import Scene3DHero from "../components/Scene3D/Scene3DHero";
 import MetricsBar from "../components/MetricsBar";
 import FeaturesSection from "../components/FeaturesSection";
 import ComparisonSection from "../components/ComparisonSection";
@@ -11,7 +11,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main>
-        <HeroSection />
+        <Scene3DHero />
         <MetricsBar />
         <FeaturesSection />
         <HowItWorksSection />
