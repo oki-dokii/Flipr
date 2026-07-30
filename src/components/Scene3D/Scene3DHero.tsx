@@ -301,14 +301,14 @@ const Scene3DHero = () => {
   }, []);
 
   return (
-    <div className="w-full h-[75vh] relative bg-background">
+    <div className="w-full h-[85vh] relative bg-background">
       {webglSupported ? (
         <WebGLErrorBoundary fallback={<HeroFallback />}>
           <Canvas
             shadows
             dpr={[1, 2]}
             gl={{ antialias: true }}
-            style={{ background: 'transparent' }}
+            style={{ background: 'transparent', pointerEvents: 'none' }}
           >
             <PerspectiveCamera makeDefault position={[10, 6, 12]} fov={45} />
             <OrbitControls
@@ -329,8 +329,8 @@ const Scene3DHero = () => {
         <HeroFallback />
       )}
 
-      {/* Title overlay */}
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 text-center z-10 pointer-events-none w-full px-4">
+      {/* Title overlay — top-20 clears the fixed navbar (~80px) */}
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 text-center z-20 pointer-events-none w-full px-4">
         <motion.div style={{ opacity }}>
           <motion.h1
             className="text-4xl md:text-6xl font-bold mb-2 text-foreground tracking-wide"
@@ -398,8 +398,8 @@ const Scene3DHero = () => {
         </motion.div>
       </div>
 
-      {/* CTA buttons */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex gap-4 z-10 items-center justify-center w-full px-4">
+      {/* CTA buttons — z-30 so it's above canvas and vignette, pointer-events-auto to receive clicks */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-4 z-30 items-center justify-center w-full px-4" style={{ pointerEvents: 'auto' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
